@@ -1,6 +1,6 @@
 using System.Linq;
 
-namespace UniformQuoridor.Model
+namespace UniformQuoridor.Core
 {
 	public class Player 
 	{

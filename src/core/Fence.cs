@@ -1,4 +1,4 @@
-namespace UniformQuoridor.Model
+namespace UniformQuoridor.Core
 {
 	public class Fence 
 	{

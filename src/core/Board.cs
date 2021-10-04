@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
 
-namespace UniformQuoridor.Model
+namespace UniformQuoridor.Core
 {
 	public class Board
 	{
 		private int _size;
-	
+
 		public Board(int size)
 		{
 			_size = size;
