@@ -8,7 +8,7 @@ namespace UniformQuoridor.Core
 		private int _size;
 
 		private Cell[,] _cells;
-		private Axis[,] _fenceAxes;
+		private List<Fence> _fences;
 
 		public Board(int size)
 		{
@@ -20,9 +20,9 @@ namespace UniformQuoridor.Core
 		{
 			_cells = new Cell[_size, _size];
 
-			for (int x = 0; x < _size; x++)
+			for (int y = 0; y < _size; y++)
 			{
-				for (int y = 0; y < _size; y++)
+				for (int x = 0; x < _size; x++)
 				{
 					_cells[x, y] = new Cell(x, y);
 				}
@@ -83,9 +83,9 @@ namespace UniformQuoridor.Core
 
 			// inner cells
 
-			for (int x = firstIndex + 1; x <= lastIndex - 1; x++)
+			for (int y = firstIndex + 1; y <= lastIndex - 1; y++)
 			{
-				for (int y = firstIndex + 1; y <= lastIndex - 1; y++)
+				for (int x = firstIndex + 1; x <= lastIndex - 1; x++)
 				{
 					_cells[x, y].Top = _cells[x, y - 1];
 					_cells[x, y].Right = _cells[x + 1, y];
@@ -191,6 +191,40 @@ namespace UniformQuoridor.Core
 			return available;
 		}
 
+		private List<Fence> AvailableFences()
+		{
+			var available = new List<Fence>();
+			var unencounteredFences = _fences;
+
+			int encounteredFenceIndex;
+			for (int y = 0; y <=  _size - 1 - 1; y++)
+			{
+				for (int x = 0; x <=  _size - 1 - 1; x++)
+				{
+					encounteredFenceIndex = unencounteredFences.FindIndex(
+						fence => fence.CenterX == x && fence.CenterY == y
+					);
+					if (encounteredFenceIndex != -1)
+					{
+						unencounteredFences.RemoveAt(encounteredFenceIndex);
+						continue;
+					}
+
+					if (_cells[x, y].Bottom != null && _cells[x + 1, y].Bottom != null)
+					{
+						available.Add(new Fence(x, y, Axis.Horizontal));
+					}
+
+					if (_cells[x, y].Right != null && _cells[x, y + 1].Right != null)
+					{
+						available.Add(new Fence(x, y, Axis.Vertical));
+					}
+				}
+			}
+			
+			return available;
+		}
+
 		private bool pathExists(Cell a, Cell b)
 		{
 			// depth-first, visiting the cell which is the closest to the end
@@ -235,7 +269,7 @@ namespace UniformQuoridor.Core
 
 		private Cell closest(Dictionary<Cell, double> distances, Cell target)
 		{
-			var closest = new Cell(0, 0);  // merely to ensure the initialization, will immediately be replaced
+			Cell closest = default;
 			double smallestDistance = -1;
 
 			foreach (var cellDistance in distances)
