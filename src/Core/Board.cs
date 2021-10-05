@@ -7,8 +7,8 @@ namespace UniformQuoridor.Core
 	{
 		private int _size;
 
-		private Dictionary<int, Cell> _cells;
-		private Dictionary<int, Fence> _fences;
+		private Cell[,] _cells;
+		private Axis[,] _fenceAxes;
 
 		public Board(int size)
 		{
@@ -18,13 +18,13 @@ namespace UniformQuoridor.Core
 
 		private void InitCells()
 		{
-			_cells = new Dictionary<int, Cell>(_size * _size);
+			_cells = new Cell[_size, _size];
 
-			for (int x = 1, id = 1; x <= _size; x++)
+			for (int x = 0; x < _size; x++)
 			{
-				for (int y = 1; y <= _size; y++, id++)
+				for (int y = 0; y < _size; y++)
 				{
-					_cells[_size * x + y] = new Cell(x, y);
+					_cells[x, y] = new Cell(x, y);
 				}
 			}
 
@@ -33,83 +33,67 @@ namespace UniformQuoridor.Core
 
 		private void InitAdjacentCells()
 		{
+			int firstIndex = 0, lastIndex = _size - 1;
+
+
 			// corner cells
 
-			int topLeftCornerId = 1;
-			_cells[topLeftCornerId].Right = cellToRightOfId(topLeftCornerId);
-			_cells[topLeftCornerId].Bottom = cellToBottomOfId(topLeftCornerId);
+			// top-left
+			_cells[firstIndex, firstIndex].Right = _cells[firstIndex + 1, firstIndex];
+			_cells[firstIndex, firstIndex].Bottom = _cells[firstIndex, firstIndex + 1];
 
-			int topRightCornerId = _size;
-			_cells[topRightCornerId].Bottom = cellToBottomOfId(topRightCornerId);
-			_cells[topRightCornerId].Left = cellToLeftOfId(topRightCornerId);
+			// top-right
+			_cells[lastIndex, firstIndex].Bottom = _cells[lastIndex, firstIndex + 1];
+			_cells[lastIndex, firstIndex].Left = _cells[lastIndex - 1, firstIndex];
 			
-			int bottomRightCornerId = _cells.Count;
-			_cells[bottomRightCornerId].Left = cellToLeftOfId(bottomRightCornerId);
-			_cells[bottomRightCornerId].Top = cellToTopOfId(bottomRightCornerId);
+			// bottom-right
+			_cells[lastIndex, lastIndex].Left = _cells[lastIndex - 1, lastIndex];
+			_cells[lastIndex, lastIndex].Top = _cells[lastIndex, lastIndex - 1];
 
-			int bottomLeftCornerId = _cells.Count - _size + 1;
-			_cells[bottomLeftCornerId].Top =cellToTopOfId(bottomLeftCornerId);
-			_cells[bottomLeftCornerId].Right =  cellToRightOfId(bottomLeftCornerId);
+			// bottom-left
+			_cells[firstIndex, lastIndex].Top = _cells[firstIndex, lastIndex - 1];
+			_cells[firstIndex, lastIndex].Right = _cells[firstIndex + 1, lastIndex];
 
 
 			// edge cells
 
-			int firstTopEdgeId = topLeftCornerId + 1, lastTopEdgeId = topRightCornerId - 1;
-			for (int c = firstTopEdgeId; c <= lastTopEdgeId; c++)
+			for (int i = firstIndex + 1; i <= lastIndex - 1; i++)
 			{
-				_cells[c].Right = cellToRightOfId(c);
-				_cells[c].Bottom = cellToBottomOfId(c);
-				_cells[c].Left = cellToLeftOfId(c);
-			}
-			
-			int firstRightEdgeId = topRightCornerId + _size, lastRightEdgeId = bottomRightCornerId - _size;
-			for (int c = firstRightEdgeId; c <= lastRightEdgeId; c++)
-			{
-				_cells[c].Top = cellToTopOfId(c);
-				_cells[c].Bottom = cellToBottomOfId(c);
-				_cells[c].Left = cellToLeftOfId(c);
-			}
+				// top
+				_cells[i, firstIndex].Right = _cells[i + 1, firstIndex];
+				_cells[i, firstIndex].Bottom = _cells[i, firstIndex + 1];
+				_cells[i, firstIndex].Left = _cells[i - 1, firstIndex];
 
-			int firstBottomEdgeId = bottomLeftCornerId + 1, lastBottomEdgeId = bottomRightCornerId - 1;
-			for (int c = firstBottomEdgeId; c <= lastBottomEdgeId; c++)
-			{
-				_cells[c].Left = cellToLeftOfId(c);
-				_cells[c].Top = cellToTopOfId(c);
-				_cells[c].Right = cellToRightOfId(c);
-			}
-			
-			int firstLeftEdgeId = topLeftCornerId + _size, lastLeftEdgeId = bottomLeftCornerId - _size;
-			for (int c = firstLeftEdgeId; c <= lastLeftEdgeId; c++)
-			{
-				_cells[c].Top = cellToTopOfId(c);
-				_cells[c].Right = cellToRightOfId(c);
-				_cells[c].Bottom = cellToBottomOfId(c);
+				// right
+				_cells[lastIndex, i].Top = _cells[lastIndex, i - 1];
+				_cells[lastIndex, i].Bottom = _cells[lastIndex, i + 1];
+				_cells[lastIndex, i].Left = _cells[lastIndex - 1, i];
+
+				// bottom
+				_cells[i, lastIndex].Left = _cells[i - 1, lastIndex];
+				_cells[i, lastIndex].Top = _cells[i, lastIndex - 1];
+				_cells[i, lastIndex].Right = _cells[i + 1, lastIndex];
+
+				// left
+				_cells[firstIndex, i].Top = _cells[firstIndex, i - 1];
+				_cells[firstIndex, i].Right = _cells[firstIndex + 1, i];
+				_cells[firstIndex, i].Bottom = _cells[firstIndex, i + 1];
 			}
 
 
-			// central cells
+			// inner cells
 
-			int firstCentralRowId = firstLeftEdgeId + 1, lastCentralRowId = lastLeftEdgeId + 1;
-			int numCellsInCentralRow = _size - 2;
-			for (int rowFirstId = firstCentralRowId; rowFirstId <= lastCentralRowId; rowFirstId += _size)
+			for (int x = firstIndex + 1; x <= lastIndex - 1; x++)
 			{
-				for (int i = rowFirstId; i < rowFirstId + numCellsInCentralRow; i++)
+				for (int y = firstIndex + 1; y <= lastIndex - 1; y++)
 				{
-					_cells[rowFirstId].Top = cellToTopOfId(rowFirstId);
-					_cells[rowFirstId].Right = cellToRightOfId(rowFirstId);
-					_cells[rowFirstId].Bottom = cellToBottomOfId(rowFirstId);
-					_cells[rowFirstId].Left = cellToLeftOfId(rowFirstId);
+					_cells[x, y].Top = _cells[x, y - 1];
+					_cells[x, y].Right = _cells[x + 1, y];
+					_cells[x, y].Bottom = _cells[x, y + 1];
+					_cells[x, y].Left = _cells[x - 1, y];
 				}
 			}
 		}
-
-		private Cell cellToTopOfId(int id) => _cells[id - _size];
-
-		private Cell cellToRightOfId(int id) => _cells[id + 1];
-
-		private Cell cellToBottomOfId(int id) => _cells[id + _size];
-
-		private Cell cellToLeftOfId(int id) => _cells[id - 1];
 
 		private List<Cell> AvailableCells(Player player)
 		{
