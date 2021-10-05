@@ -5,26 +5,26 @@ namespace UniformQuoridor.Core
 {
 	public class Board
 	{
-		private int _size;
+		public int Size { get; init; }
 
-		private Cell[,] _cells;
+		public Cell[,] Cells { get; init; }
 		private List<Fence> _fences;
 
 		public Board(int size)
 		{
-			_size = size;
+			Size = size;
+			Cells = new Cell[Size, Size];
+
 			InitCells();
 		}
 
 		private void InitCells()
 		{
-			_cells = new Cell[_size, _size];
-
-			for (int y = 0; y < _size; y++)
+			for (int y = 0; y < Size; y++)
 			{
-				for (int x = 0; x < _size; x++)
+				for (int x = 0; x < Size; x++)
 				{
-					_cells[x, y] = new Cell(x, y);
+					Cells[x, y] = new Cell(x, y);
 				}
 			}
 
@@ -33,26 +33,26 @@ namespace UniformQuoridor.Core
 
 		private void InitAdjacentCells()
 		{
-			int firstIndex = 0, lastIndex = _size - 1;
+			int firstIndex = 0, lastIndex = Size - 1;
 
 
 			// corner cells
 
 			// top-left
-			_cells[firstIndex, firstIndex].Right = _cells[firstIndex + 1, firstIndex];
-			_cells[firstIndex, firstIndex].Bottom = _cells[firstIndex, firstIndex + 1];
+			Cells[firstIndex, firstIndex].Right = Cells[firstIndex + 1, firstIndex];
+			Cells[firstIndex, firstIndex].Bottom = Cells[firstIndex, firstIndex + 1];
 
 			// top-right
-			_cells[lastIndex, firstIndex].Bottom = _cells[lastIndex, firstIndex + 1];
-			_cells[lastIndex, firstIndex].Left = _cells[lastIndex - 1, firstIndex];
+			Cells[lastIndex, firstIndex].Bottom = Cells[lastIndex, firstIndex + 1];
+			Cells[lastIndex, firstIndex].Left = Cells[lastIndex - 1, firstIndex];
 			
 			// bottom-right
-			_cells[lastIndex, lastIndex].Left = _cells[lastIndex - 1, lastIndex];
-			_cells[lastIndex, lastIndex].Top = _cells[lastIndex, lastIndex - 1];
+			Cells[lastIndex, lastIndex].Left = Cells[lastIndex - 1, lastIndex];
+			Cells[lastIndex, lastIndex].Top = Cells[lastIndex, lastIndex - 1];
 
 			// bottom-left
-			_cells[firstIndex, lastIndex].Top = _cells[firstIndex, lastIndex - 1];
-			_cells[firstIndex, lastIndex].Right = _cells[firstIndex + 1, lastIndex];
+			Cells[firstIndex, lastIndex].Top = Cells[firstIndex, lastIndex - 1];
+			Cells[firstIndex, lastIndex].Right = Cells[firstIndex + 1, lastIndex];
 
 
 			// edge cells
@@ -60,24 +60,24 @@ namespace UniformQuoridor.Core
 			for (int i = firstIndex + 1; i <= lastIndex - 1; i++)
 			{
 				// top
-				_cells[i, firstIndex].Right = _cells[i + 1, firstIndex];
-				_cells[i, firstIndex].Bottom = _cells[i, firstIndex + 1];
-				_cells[i, firstIndex].Left = _cells[i - 1, firstIndex];
+				Cells[i, firstIndex].Right = Cells[i + 1, firstIndex];
+				Cells[i, firstIndex].Bottom = Cells[i, firstIndex + 1];
+				Cells[i, firstIndex].Left = Cells[i - 1, firstIndex];
 
 				// right
-				_cells[lastIndex, i].Top = _cells[lastIndex, i - 1];
-				_cells[lastIndex, i].Bottom = _cells[lastIndex, i + 1];
-				_cells[lastIndex, i].Left = _cells[lastIndex - 1, i];
+				Cells[lastIndex, i].Top = Cells[lastIndex, i - 1];
+				Cells[lastIndex, i].Bottom = Cells[lastIndex, i + 1];
+				Cells[lastIndex, i].Left = Cells[lastIndex - 1, i];
 
 				// bottom
-				_cells[i, lastIndex].Left = _cells[i - 1, lastIndex];
-				_cells[i, lastIndex].Top = _cells[i, lastIndex - 1];
-				_cells[i, lastIndex].Right = _cells[i + 1, lastIndex];
+				Cells[i, lastIndex].Left = Cells[i - 1, lastIndex];
+				Cells[i, lastIndex].Top = Cells[i, lastIndex - 1];
+				Cells[i, lastIndex].Right = Cells[i + 1, lastIndex];
 
 				// left
-				_cells[firstIndex, i].Top = _cells[firstIndex, i - 1];
-				_cells[firstIndex, i].Right = _cells[firstIndex + 1, i];
-				_cells[firstIndex, i].Bottom = _cells[firstIndex, i + 1];
+				Cells[firstIndex, i].Top = Cells[firstIndex, i - 1];
+				Cells[firstIndex, i].Right = Cells[firstIndex + 1, i];
+				Cells[firstIndex, i].Bottom = Cells[firstIndex, i + 1];
 			}
 
 
@@ -87,10 +87,10 @@ namespace UniformQuoridor.Core
 			{
 				for (int x = firstIndex + 1; x <= lastIndex - 1; x++)
 				{
-					_cells[x, y].Top = _cells[x, y - 1];
-					_cells[x, y].Right = _cells[x + 1, y];
-					_cells[x, y].Bottom = _cells[x, y + 1];
-					_cells[x, y].Left = _cells[x - 1, y];
+					Cells[x, y].Top = Cells[x, y - 1];
+					Cells[x, y].Right = Cells[x + 1, y];
+					Cells[x, y].Bottom = Cells[x, y + 1];
+					Cells[x, y].Left = Cells[x - 1, y];
 				}
 			}
 		}
@@ -197,9 +197,9 @@ namespace UniformQuoridor.Core
 			var unencounteredFences = _fences;
 
 			int encounteredFenceIndex;
-			for (int y = 0; y <=  _size - 1 - 1; y++)
+			for (int y = 0; y <=  Size - 1 - 1; y++)
 			{
-				for (int x = 0; x <=  _size - 1 - 1; x++)
+				for (int x = 0; x <=  Size - 1 - 1; x++)
 				{
 					encounteredFenceIndex = unencounteredFences.FindIndex(
 						fence => fence.CenterX == x && fence.CenterY == y
@@ -210,18 +210,18 @@ namespace UniformQuoridor.Core
 						continue;
 					}
 
-					if (_cells[x, y].Bottom != null && _cells[x + 1, y].Bottom != null)
+					if (Cells[x, y].Bottom != null && Cells[x + 1, y].Bottom != null)
 					{
 						available.Add(new Fence(x, y, Axis.Horizontal));
 					}
 
-					if (_cells[x, y].Right != null && _cells[x, y + 1].Right != null)
+					if (Cells[x, y].Right != null && Cells[x, y + 1].Right != null)
 					{
 						available.Add(new Fence(x, y, Axis.Vertical));
 					}
 				}
 			}
-			
+
 			return available;
 		}
 
