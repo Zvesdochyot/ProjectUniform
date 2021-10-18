@@ -5,96 +5,92 @@ namespace UniformQuoridor.Core
 {
 	public class Board
 	{
-		private int _size;
+		public int Size { get; init; }
+
+		public Cell[,] Cells { get; init; }
+		private List<Fence> _fences;
 
 		public Board(int size)
 		{
-			_size = size;
-			InitAdjacencyList(InitCells(size*size));
+			Size = size;
+			Cells = new Cell[Size, Size];
+
+			InitCells();
 		}
 
-		private Dictionary<int, Cell> InitCells(int numCells)
+		private void InitCells()
 		{
-			var cells = new Dictionary<int, Cell>(numCells);
-
-			for (int x = 1, id = 1; x <= _size; x++)
+			for (int y = 0; y < Size; y++)
 			{
-				for (int y = 1; y <= _size; y++, id++)
+				for (int x = 0; x < Size; x++)
 				{
-					cells[_size * x + y] = new Cell(x, y);
+					Cells[x, y] = new Cell(x, y);
 				}
 			}
 
-			return cells;
-		}			
+			InitAdjacentCells();
+		}
 
-		private void InitAdjacencyList(Dictionary<int, Cell> cells)
+		private void InitAdjacentCells()
 		{
+			int firstIndex = 0, lastIndex = Size - 1;
+
+
 			// corner cells
 
-			int topLeftCornerId = 1;
-			cells[topLeftCornerId].Right = cells[topLeftCornerId + 1];
-			cells[topLeftCornerId].Bottom = cells[topLeftCornerId + _size];
+			// top-left
+			Cells[firstIndex, firstIndex].Right = Cells[firstIndex + 1, firstIndex];
+			Cells[firstIndex, firstIndex].Bottom = Cells[firstIndex, firstIndex + 1];
 
-			int topRightCornerId = _size;
-			cells[topRightCornerId].Bottom =  cells[topRightCornerId + _size];
-			cells[topRightCornerId].Left = cells[topRightCornerId - 1];
+			// top-right
+			Cells[lastIndex, firstIndex].Bottom = Cells[lastIndex, firstIndex + 1];
+			Cells[lastIndex, firstIndex].Left = Cells[lastIndex - 1, firstIndex];
 			
-			int bottomRightCornerId = cells.Count;
-			cells[bottomRightCornerId].Left = cells[bottomRightCornerId - 1];
-			cells[bottomRightCornerId].Top = cells[bottomRightCornerId - _size];
+			// bottom-right
+			Cells[lastIndex, lastIndex].Left = Cells[lastIndex - 1, lastIndex];
+			Cells[lastIndex, lastIndex].Top = Cells[lastIndex, lastIndex - 1];
 
-			int bottomLeftCornerId = cells.Count - _size + 1;
-			cells[bottomLeftCornerId].Top = cells[bottomLeftCornerId - _size];
-			cells[bottomLeftCornerId].Right =  cells[bottomLeftCornerId + 1];
+			// bottom-left
+			Cells[firstIndex, lastIndex].Top = Cells[firstIndex, lastIndex - 1];
+			Cells[firstIndex, lastIndex].Right = Cells[firstIndex + 1, lastIndex];
 
 
 			// edge cells
 
-			int firstTopEdgeId = topLeftCornerId + 1, lastTopEdgeId = topRightCornerId - 1;
-			for (int c = firstTopEdgeId; c <= lastTopEdgeId; c++)
+			for (int i = firstIndex + 1; i <= lastIndex - 1; i++)
 			{
-				cells[c].Right = cells[c + 1];
-				cells[c].Bottom = cells[c + _size];
-				cells[c].Left = cells[c - 1];
-			}
-			
-			int firstRightEdgeId = topRightCornerId + _size, lastRightEdgeId = bottomRightCornerId - _size;
-			for (int c = firstRightEdgeId; c <= lastRightEdgeId; c++)
-			{
-				cells[c].Top = cells[c - _size];
-				cells[c].Bottom = cells[c + _size];
-				cells[c].Left = cells[c - 1];
+				// top
+				Cells[i, firstIndex].Right = Cells[i + 1, firstIndex];
+				Cells[i, firstIndex].Bottom = Cells[i, firstIndex + 1];
+				Cells[i, firstIndex].Left = Cells[i - 1, firstIndex];
+
+				// right
+				Cells[lastIndex, i].Top = Cells[lastIndex, i - 1];
+				Cells[lastIndex, i].Bottom = Cells[lastIndex, i + 1];
+				Cells[lastIndex, i].Left = Cells[lastIndex - 1, i];
+
+				// bottom
+				Cells[i, lastIndex].Left = Cells[i - 1, lastIndex];
+				Cells[i, lastIndex].Top = Cells[i, lastIndex - 1];
+				Cells[i, lastIndex].Right = Cells[i + 1, lastIndex];
+
+				// left
+				Cells[firstIndex, i].Top = Cells[firstIndex, i - 1];
+				Cells[firstIndex, i].Right = Cells[firstIndex + 1, i];
+				Cells[firstIndex, i].Bottom = Cells[firstIndex, i + 1];
 			}
 
-			int firstBottomEdgeId = bottomLeftCornerId + 1, lastBottomEdgeId = bottomRightCornerId - 1;
-			for (int c = firstBottomEdgeId; c <= lastBottomEdgeId; c++)
-			{
-				cells[c].Left = cells[c - 1];
-				cells[c].Top = cells[c - _size];
-				cells[c].Right = cells[c + 1];
-			}
-			
-			int firstLeftEdgeId = topLeftCornerId + _size, lastLeftEdgeId = bottomLeftCornerId - _size;
-			for (int c = firstLeftEdgeId; c <= lastLeftEdgeId; c++)
-			{
-				cells[c].Top = cells[c - _size];
-				cells[c].Right = cells[c + 1];
-				cells[c].Bottom = cells[c + _size];
-			}
 
-			// central cells
+			// inner cells
 
-			int firstCentralRowId = firstLeftEdgeId + 1, lastCentralRowId = lastLeftEdgeId + 1;
-			int numCellsInCentralRow = _size - 2;
-			for (int rowFirstId = firstCentralRowId; rowFirstId <= lastCentralRowId; rowFirstId += _size)
+			for (int y = firstIndex + 1; y <= lastIndex - 1; y++)
 			{
-				for (int i = rowFirstId; i < rowFirstId + numCellsInCentralRow; i++)
+				for (int x = firstIndex + 1; x <= lastIndex - 1; x++)
 				{
-					cells[rowFirstId].Top = cells[rowFirstId - _size];
-					cells[rowFirstId].Right = cells[rowFirstId + 1];
-					cells[rowFirstId].Bottom = cells[rowFirstId + _size];
-					cells[rowFirstId].Left = cells[rowFirstId - 1];
+					Cells[x, y].Top = Cells[x, y - 1];
+					Cells[x, y].Right = Cells[x + 1, y];
+					Cells[x, y].Bottom = Cells[x, y + 1];
+					Cells[x, y].Left = Cells[x - 1, y];
 				}
 			}
 		}
@@ -194,7 +190,41 @@ namespace UniformQuoridor.Core
 
 			return available;
 		}
-	
+
+		private List<Fence> AvailableFences()
+		{
+			var available = new List<Fence>();
+			var unencounteredFences = _fences;
+
+			int encounteredFenceIndex;
+			for (int y = 0; y <=  Size - 1 - 1; y++)
+			{
+				for (int x = 0; x <=  Size - 1 - 1; x++)
+				{
+					encounteredFenceIndex = unencounteredFences.FindIndex(
+						fence => fence.CenterX == x && fence.CenterY == y
+					);
+					if (encounteredFenceIndex != -1)
+					{
+						unencounteredFences.RemoveAt(encounteredFenceIndex);
+						continue;
+					}
+
+					if (Cells[x, y].Bottom != null && Cells[x + 1, y].Bottom != null)
+					{
+						available.Add(new Fence(x, y, Axis.Horizontal));
+					}
+
+					if (Cells[x, y].Right != null && Cells[x, y + 1].Right != null)
+					{
+						available.Add(new Fence(x, y, Axis.Vertical));
+					}
+				}
+			}
+
+			return available;
+		}
+
 		private bool pathExists(Cell a, Cell b)
 		{
 			// depth-first, visiting the cell which is the closest to the end
@@ -239,7 +269,7 @@ namespace UniformQuoridor.Core
 
 		private Cell closest(Dictionary<Cell, double> distances, Cell target)
 		{
-			var closest = new Cell(0, 0);  // merely to ensure the initialization, will immediately be replaced
+			Cell closest = default;
 			double smallestDistance = -1;
 
 			foreach (var cellDistance in distances)
