@@ -20,11 +20,11 @@ namespace UniformQuoridor.Core
 
 		private void InitCells()
 		{
-			for (int y = 0; y < Size; y++)
+			for (int r = 0; r < Size; r++)
 			{
-				for (int x = 0; x < Size; x++)
+				for (int c = 0; c < Size; c++)
 				{
-					Cells[x, y] = new Cell(x, y);
+					Cells[c, r] = new Cell(c, r);
 				}
 			}
 
@@ -39,58 +39,53 @@ namespace UniformQuoridor.Core
 			// corner cells
 
 			// top-left
-			Cells[firstIndex, firstIndex].Right = Cells[firstIndex + 1, firstIndex];
-			Cells[firstIndex, firstIndex].Bottom = Cells[firstIndex, firstIndex + 1];
+			Cells[firstIndex, firstIndex].Right = Cells[firstIndex, firstIndex + 1];
+			Cells[firstIndex, firstIndex].Bottom = Cells[firstIndex + 1, firstIndex];
 
 			// top-right
-			Cells[lastIndex, firstIndex].Bottom = Cells[lastIndex, firstIndex + 1];
-			Cells[lastIndex, firstIndex].Left = Cells[lastIndex - 1, firstIndex];
+			Cells[firstIndex, lastIndex].Bottom = Cells[firstIndex + 1, lastIndex];
+			Cells[firstIndex, lastIndex].Left = Cells[firstIndex, lastIndex - 1];
 			
 			// bottom-right
-			Cells[lastIndex, lastIndex].Left = Cells[lastIndex - 1, lastIndex];
-			Cells[lastIndex, lastIndex].Top = Cells[lastIndex, lastIndex - 1];
+			Cells[lastIndex, lastIndex].Left = Cells[lastIndex, lastIndex - 1];
+			Cells[lastIndex, lastIndex].Top = Cells[lastIndex - 1, lastIndex];
 
 			// bottom-left
-			Cells[firstIndex, lastIndex].Top = Cells[firstIndex, lastIndex - 1];
-			Cells[firstIndex, lastIndex].Right = Cells[firstIndex + 1, lastIndex];
+			Cells[lastIndex, firstIndex].Top = Cells[lastIndex - 1, firstIndex];
+			Cells[lastIndex, firstIndex].Right = Cells[lastIndex, firstIndex + 1];
 
 
-			// edge cells
+			// edge and inner cells
 
 			for (int i = firstIndex + 1; i <= lastIndex - 1; i++)
 			{
-				// top
-				Cells[i, firstIndex].Right = Cells[i + 1, firstIndex];
-				Cells[i, firstIndex].Bottom = Cells[i, firstIndex + 1];
-				Cells[i, firstIndex].Left = Cells[i - 1, firstIndex];
+				// top edge
+				Cells[firstIndex, i].Right = Cells[firstIndex, i + 1];
+				Cells[firstIndex, i].Bottom = Cells[firstIndex + 1, i];
+				Cells[firstIndex, i].Left = Cells[firstIndex, i - 1];
 
-				// right
-				Cells[lastIndex, i].Top = Cells[lastIndex, i - 1];
-				Cells[lastIndex, i].Bottom = Cells[lastIndex, i + 1];
-				Cells[lastIndex, i].Left = Cells[lastIndex - 1, i];
+				// right edge
+				Cells[i, lastIndex].Top = Cells[i - 1, lastIndex];
+				Cells[i, lastIndex].Bottom = Cells[i + 1, lastIndex];
+				Cells[i, lastIndex].Left = Cells[i, lastIndex - 1];
 
-				// bottom
-				Cells[i, lastIndex].Left = Cells[i - 1, lastIndex];
-				Cells[i, lastIndex].Top = Cells[i, lastIndex - 1];
-				Cells[i, lastIndex].Right = Cells[i + 1, lastIndex];
+				// bottom edge
+				Cells[lastIndex, i].Left = Cells[lastIndex, i - 1];
+				Cells[lastIndex, i].Top = Cells[lastIndex - 1, i];
+				Cells[lastIndex, i].Right = Cells[lastIndex, i + 1];
 
-				// left
-				Cells[firstIndex, i].Top = Cells[firstIndex, i - 1];
-				Cells[firstIndex, i].Right = Cells[firstIndex + 1, i];
-				Cells[firstIndex, i].Bottom = Cells[firstIndex, i + 1];
-			}
+				// left edge
+				Cells[i, firstIndex].Top = Cells[i - 1, firstIndex];
+				Cells[i, firstIndex].Right = Cells[i, firstIndex + 1];
+				Cells[i, firstIndex].Bottom = Cells[i + 1, firstIndex];
 
-
-			// inner cells
-
-			for (int y = firstIndex + 1; y <= lastIndex - 1; y++)
-			{
-				for (int x = firstIndex + 1; x <= lastIndex - 1; x++)
+				// inner cells
+				for (int c = firstIndex + 1; c <= lastIndex - 1; c++)
 				{
-					Cells[x, y].Top = Cells[x, y - 1];
-					Cells[x, y].Right = Cells[x + 1, y];
-					Cells[x, y].Bottom = Cells[x, y + 1];
-					Cells[x, y].Left = Cells[x - 1, y];
+					Cells[i, c].Top = Cells[i  - 1, c];
+					Cells[i, c].Right = Cells[i, c + 1];
+					Cells[i, c].Bottom = Cells[i + 1, c];
+					Cells[i, c].Left = Cells[i, c - 1];
 				}
 			}
 		}
@@ -196,13 +191,13 @@ namespace UniformQuoridor.Core
 			var available = new List<Fence>();
 			var unencounteredFences = _fences;
 
-			int encounteredFenceIndex;
-			for (int y = 0; y <=  Size - 1 - 1; y++)
+			int lastIndex = Size - 1, encounteredFenceIndex;
+			for (int c = 0; c <=  lastIndex - 1; c++)
 			{
-				for (int x = 0; x <=  Size - 1 - 1; x++)
+				for (int r = 0; r <=  lastIndex - 1; r++)
 				{
 					encounteredFenceIndex = unencounteredFences.FindIndex(
-						fence => fence.CenterX == x && fence.CenterY == y
+						fence => fence.CenterColumn == r && fence.CenterRow == c
 					);
 					if (encounteredFenceIndex != -1)
 					{
@@ -210,14 +205,14 @@ namespace UniformQuoridor.Core
 						continue;
 					}
 
-					if (Cells[x, y].Bottom != null && Cells[x + 1, y].Bottom != null)
+					if (Cells[r, c].Bottom != null && Cells[r + 1, c].Bottom != null)
 					{
-						available.Add(new Fence(x, y, Axis.Horizontal));
+						available.Add(new Fence(r, c, Axis.Horizontal));
 					}
 
-					if (Cells[x, y].Right != null && Cells[x, y + 1].Right != null)
+					if (Cells[r, c].Right != null && Cells[r, c + 1].Right != null)
 					{
-						available.Add(new Fence(x, y, Axis.Vertical));
+						available.Add(new Fence(r, c, Axis.Vertical));
 					}
 				}
 			}
@@ -225,59 +220,59 @@ namespace UniformQuoridor.Core
 			return available;
 		}
 
-		private bool pathExists(Cell a, Cell b)
+		private bool PathExists(Cell a, Cell b)
 		{
-			// depth-first, visiting the cell which is the closest to the end
+			// depth-first, visiting the cell which is the closest one to the end cell
 
-			var candidates = new Dictionary<Cell, double>() { {a, distance(a, b)} };
+			var candidates = new Dictionary<Cell, double>() { {a, Distance(a, b)} };
 			Cell current;
 			var visited = new List<Cell>();
 
 			while (candidates.Count != 0)
 			{
-				current = closest(candidates, b);
+				current = Closest(candidates);
 
 				if (current == b) return true;
 				visited.Add(current);
 
 				if (!visited.Contains(current.Top) && current.Top != null)
 				{
-					candidates.Add(current.Top, distance(current.Top, b));
+					candidates.Add(current.Top, Distance(current.Top, b));
 				}
 				if (!visited.Contains(current.Right) && current.Right != null)
 				{
-					candidates.Add(current.Right, distance(current.Right, b));
+					candidates.Add(current.Right, Distance(current.Right, b));
 				}
 				if (!visited.Contains(current.Bottom) && current.Bottom != null)
 				{
-					candidates.Add(current.Bottom, distance(current.Bottom, b));
+					candidates.Add(current.Bottom, Distance(current.Bottom, b));
 				}
 				if (!visited.Contains(current.Top) && current.Left != null)
 				{
-					candidates.Add(current.Left, distance(current.Left, b));
+					candidates.Add(current.Left, Distance(current.Left, b));
 				}
 			}
 
 			return false;
 		}
 
-		private double distance(Cell a, Cell b)
+		private double Distance(Cell a, Cell b)
 		{
-			int distanceX = a.X - b.X, distanceY = a.Y - b.Y;
+			int distanceX = a.Column - b.Column, distanceY = a.Row - b.Row;
 			return Math.Sqrt(distanceX*distanceX + distanceY*distanceY);
 		}
 
-		private Cell closest(Dictionary<Cell, double> distances, Cell target)
+		private Cell Closest(Dictionary<Cell, double> distances)
 		{
 			Cell closest = default;
-			double smallestDistance = -1;
+			double smallestDistance = Double.PositiveInfinity;
 
-			foreach (var cellDistance in distances)
+			foreach (var (cell, distance) in distances)
 			{
-				if (cellDistance.Value < smallestDistance)
+				if (distance < smallestDistance)
 				{
-					closest = cellDistance.Key;
-					smallestDistance = cellDistance.Value;
+					closest = cell;
+					smallestDistance = distance;
 				}
 			}
 
