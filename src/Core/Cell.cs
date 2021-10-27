@@ -2,9 +2,9 @@ namespace UniformQuoridor.Core
 {
     public class Cell 
     {
-        public int Column { get; init; }
-
-        public int Row { get; init; }
+        public int Row { get; }
+        
+        public int Column { get; }
 
         public Cell Top { get; set; }
 

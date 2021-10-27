@@ -15,7 +15,7 @@ namespace UniformQuoridor.Core
         {
             Size = size;
             Cells = new Cell[size, size];
-            Fences = new List<Fence>(10);
+            Fences = new List<Fence>(20);
             
             InitCells();
         }
@@ -26,7 +26,7 @@ namespace UniformQuoridor.Core
             {
                 for (int c = 0; c < Size; c++)
                 {
-                    Cells[c, r] = new Cell(c, r);
+                    Cells[r, c] = new Cell(r, c);
                 }
             }
 
