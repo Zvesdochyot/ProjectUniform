@@ -1,10 +1,10 @@
 namespace UniformQuoridor.Core
 {
-	public class Cell 
-	{
-		public int Column { get; init; }
+    public class Cell 
+    {
+        public int Column { get; init; }
 
-		public int Row { get; init; }
+        public int Row { get; init; }
 
         public Cell Top { get; set; }
 
@@ -16,10 +16,10 @@ namespace UniformQuoridor.Core
 
         public bool IsFree { get; set; } = true;
 
-		public Cell(int row, int column) 
-		{
-			Row = row;
-			Column = column;
-		}
-	}
+        public Cell(int row, int column) 
+        {
+            Row = row;
+            Column = column;
+        }
+    }
 }
