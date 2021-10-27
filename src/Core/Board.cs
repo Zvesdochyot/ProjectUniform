@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 
+
 namespace UniformQuoridor.Core
 {
 	public class Board
@@ -8,7 +9,7 @@ namespace UniformQuoridor.Core
 		public int Size { get; init; }
 
 		public Cell[,] Cells { get; init; }
-		private List<Fence> _fences;
+		public List<Fence> Fences { get; } = new List<Fence>();
 
 		public Board(int size)
 		{
@@ -24,7 +25,7 @@ namespace UniformQuoridor.Core
 			{
 				for (int c = 0; c < Size; c++)
 				{
-					Cells[c, r] = new Cell(c, r);
+					Cells[r, c] = new Cell(r, c);
 				}
 			}
 
@@ -90,7 +91,7 @@ namespace UniformQuoridor.Core
 			}
 		}
 
-		private List<Cell> AvailableCells(Player player)
+		public List<Cell> AvailableCells(Player player)
 		{
 			var available = new List<Cell>(5);
 
@@ -186,10 +187,10 @@ namespace UniformQuoridor.Core
 			return available;
 		}
 
-		private List<Fence> AvailableFences()
+		public List<Fence> AvailableFences()
 		{
 			var available = new List<Fence>();
-			var unencounteredFences = _fences;
+			var unencounteredFences = Fences;
 
 			int lastIndex = Size - 1, encounteredFenceIndex;
 			for (int c = 0; c <=  lastIndex - 1; c++)
@@ -256,13 +257,13 @@ namespace UniformQuoridor.Core
 			return false;
 		}
 
-		private double Distance(Cell a, Cell b)
+		private static double Distance(Cell a, Cell b)
 		{
 			int distanceX = a.Column - b.Column, distanceY = a.Row - b.Row;
 			return Math.Sqrt(distanceX*distanceX + distanceY*distanceY);
 		}
 
-		private Cell Closest(Dictionary<Cell, double> distances)
+		private static Cell Closest(Dictionary<Cell, double> distances)
 		{
 			Cell closest = default;
 			double smallestDistance = Double.PositiveInfinity;
