@@ -95,15 +95,15 @@ namespace UniformQuoridor.Core
 		{
 			var available = new List<Cell>(5);
 
-			available.AddRange(AvailableToTop(player));
-			available.AddRange(AvailableToRight(player));
-			available.AddRange(AvailableToBottom(player));
-			available.AddRange(AvailableToLeft(player));
+			available.AddRange(AvailableCellsToTop(player));
+			available.AddRange(AvailableCellsToRight(player));
+			available.AddRange(AvailableCellsToBottom(player));
+			available.AddRange(AvailableCellsToLeft(player));
 
 			return available;
 		}
 
-		private List<Cell> AvailableToTop(Player player)
+		private List<Cell> AvailableCellsToTop(Player player)
 		{
 			var cell = player.Cell;
 			var available = new List<Cell>(2);
@@ -124,7 +124,7 @@ namespace UniformQuoridor.Core
 			return available;
 		}
 
-		private List<Cell> AvailableToRight(Player player)
+		private List<Cell> AvailableCellsToRight(Player player)
 		{
 			var cell = player.Cell;
 			var available = new List<Cell>(2);
@@ -145,7 +145,7 @@ namespace UniformQuoridor.Core
 			return available;
 		}
 
-		private List<Cell> AvailableToBottom(Player player)
+		private List<Cell> AvailableCellsToBottom(Player player)
 		{
 			var cell = player.Cell;
 			var available = new List<Cell>(2);
@@ -166,7 +166,7 @@ namespace UniformQuoridor.Core
 			return available;
 		}
 		
-		private List<Cell> AvailableToLeft(Player player)
+		private List<Cell> AvailableCellsToLeft(Player player)
 		{
 			var cell = player.Cell;
 			var available = new List<Cell>(2);
