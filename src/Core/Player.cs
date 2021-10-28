@@ -3,34 +3,48 @@ namespace UniformQuoridor.Core
     public class Player
     {
         public int Id { get; }
+        
+        public Cell Cell { get; set; }
 
-        public Cell[] TargetCells { get; }
+        public Cell[] TargetCells { get; set; }
 
-        public Cell Cell { get; }
-
-        public Player(int id, int boardSize)
+        public Player(int id, Board board, PlayerType playerType)
         {
             Id = id;
-            TargetCells = new Cell[boardSize];
             
+            InitPlayer(board);
+        }
+
+        private void InitPlayer(Board board)
+        {
             const int firstRowIndex = 0;
-            int lastRowIndex = boardSize - 1;
-            if (id == 1)
+            int lastRowIndex = board.Size - 1;
+            int initialColumnIndex = board.Size / 2;
+
+            TargetCells = new Cell[board.Size];
+
+            if (Id == 1)
             {
-                Cell = new Cell(lastRowIndex, boardSize / 2);
-                for (int c = 0; c < boardSize; c++)
+                Cell = board.Cells[lastRowIndex, initialColumnIndex];
+                for (int c = 0; c < board.Size; c++)
                 {
-                    TargetCells[c] = new Cell(firstRowIndex, c);
+                    TargetCells[c] = board.Cells[firstRowIndex, c];
                 }
             }
             else
             {
-                Cell = new Cell(firstRowIndex, boardSize / 2);
-                for (int c = 0; c < boardSize; c++)
+                Cell = board.Cells[firstRowIndex, initialColumnIndex];
+                for (int c = 0; c < board.Size; c++)
                 {
-                    TargetCells[c] = new Cell(lastRowIndex, c);
+                    TargetCells[c] = board.Cells[lastRowIndex, c];
                 }
             }
         }
+    }
+
+    public enum PlayerType
+    {
+        Computer,
+        Human
     }
 }

@@ -92,7 +92,7 @@ namespace UniformQuoridor.Core
             }
         }
 
-        private static List<Cell> AvailableCells(Player player)
+        public static IEnumerable<Cell> AvailableCells(Player player)
         {
             var available = new List<Cell>(5);
 
@@ -188,21 +188,22 @@ namespace UniformQuoridor.Core
             return available;
         }
 
-        private List<Fence> AvailableFences()
+        public IEnumerable<Fence> AvailableFences()
         {
             var available = new List<Fence>();
-
+            var unencounteredFences = new List<Fence>(Fences);
+            
             int lastIndex = Size - 1;
-            for (int c = 0; c <=  lastIndex - 1; c++)
+            for (int c = 0; c <= lastIndex - 1; c++)
             {
-                for (int r = 0; r <=  lastIndex - 1; r++)
+                for (int r = 0; r <= lastIndex - 1; r++)
                 {
-                    int encounteredFenceIndex = Fences.FindIndex(
+                    int encounteredFenceIndex = unencounteredFences.FindIndex(
                         fence => fence.CenterColumn == r && fence.CenterRow == c);
                     
                     if (encounteredFenceIndex != -1)
                     {
-                        Fences.RemoveAt(encounteredFenceIndex);
+                        unencounteredFences.RemoveAt(encounteredFenceIndex);
                         continue;
                     }
 
