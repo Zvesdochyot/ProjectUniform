@@ -190,28 +190,30 @@ namespace UniformQuoridor.Core
 		public List<Fence> AvailableFences()
 		{
 			var available = new List<Fence>();
-			var unencounteredFences = Fences;
+			var unencountered = new List<Fence>(Fences);
 
 			int lastIndex = Size - 1, encounteredFenceIndex;
-			for (int c = 0; c <=  lastIndex - 1; c++)
+			for (int r = 0; r <=  lastIndex - 1; r++)
 			{
-				for (int r = 0; r <=  lastIndex - 1; r++)
+				for (int c = 0; c <=  lastIndex - 1; c++)
 				{
-					encounteredFenceIndex = unencounteredFences.FindIndex(
-						fence => fence.CenterColumn == r && fence.CenterRow == c
+					encounteredFenceIndex = unencountered.FindIndex(
+						(fence) => fence.CenterRow == r && fence.CenterColumn == c
 					);
-					if (encounteredFenceIndex != -1)
+					if (encounteredFenceIndex != -1)  // if the fence exists
 					{
-						unencounteredFences.RemoveAt(encounteredFenceIndex);
-						continue;
+						unencountered.RemoveAt(encounteredFenceIndex);
+						continue;  // it is unavailable
 					}
 
-					if (Cells[r, c].Bottom != null && Cells[r + 1, c].Bottom != null)
+					var cellToTopLeft = Cells[r, c];
+
+					if (cellToTopLeft.Bottom != null && cellToTopLeft.Right.Bottom != null)
 					{
 						available.Add(new Fence(r, c, Axis.Horizontal));
 					}
 
-					if (Cells[r, c].Right != null && Cells[r, c + 1].Right != null)
+					if (cellToTopLeft.Right != null && cellToTopLeft.Bottom.Right != null)
 					{
 						available.Add(new Fence(r, c, Axis.Vertical));
 					}
