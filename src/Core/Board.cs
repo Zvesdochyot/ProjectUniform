@@ -200,21 +200,21 @@ namespace UniformQuoridor.Core
 					encounteredFenceIndex = unencountered.FindIndex(
 						(fence) => fence.CenterRow == r && fence.CenterColumn == c
 					);
-					if (encounteredFenceIndex != -1)  // if the fence exists
-					{
+					if (encounteredFenceIndex != -1)
+					{  // if a fence exists at this position
 						unencountered.RemoveAt(encounteredFenceIndex);
-						continue;  // it is unavailable
+						continue;  // no fences are available
 					}
 
 					var cellToTopLeft = Cells[r, c];
 
 					if (cellToTopLeft.Bottom != null && cellToTopLeft.Right.Bottom != null)
-					{
+					{  // if neither of left and right vertical pairs has a fence in between
 						available.Add(new Fence(r, c, Axis.Horizontal));
 					}
 
 					if (cellToTopLeft.Right != null && cellToTopLeft.Bottom.Right != null)
-					{
+					{  // if neither of top and bottom horizontal pairs ones has a fence in between
 						available.Add(new Fence(r, c, Axis.Vertical));
 					}
 				}
