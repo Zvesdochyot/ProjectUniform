@@ -96,15 +96,15 @@ namespace UniformQuoridor.Core
         {
             var available = new List<Cell>(5);
 
-            available.AddRange(AvailableToTop(player));
-            available.AddRange(AvailableToRight(player));
-            available.AddRange(AvailableToBottom(player));
-            available.AddRange(AvailableToLeft(player));
+            available.AddRange(AvailableCellsToTop(player));
+            available.AddRange(AvailableCellsToRight(player));
+            available.AddRange(AvailableCellsToBottom(player));
+            available.AddRange(AvailableCellsToLeft(player));
 
             return available;
         }
 
-        private static IEnumerable<Cell> AvailableToTop(Player player)
+        private static IEnumerable<Cell> AvailableCellsToTop(Player player)
         {
             var cell = player.Cell;
             var available = new List<Cell>(2);
@@ -125,7 +125,7 @@ namespace UniformQuoridor.Core
             return available;
         }
 
-        private static IEnumerable<Cell> AvailableToRight(Player player)
+        private static IEnumerable<Cell> AvailableCellsToRight(Player player)
         {
             var cell = player.Cell;
             var available = new List<Cell>(2);
@@ -146,7 +146,7 @@ namespace UniformQuoridor.Core
             return available;
         }
 
-        private static IEnumerable<Cell> AvailableToBottom(Player player)
+        private static IEnumerable<Cell> AvailableCellsToBottom(Player player)
         {
             var cell = player.Cell;
             var available = new List<Cell>(2);
@@ -167,7 +167,7 @@ namespace UniformQuoridor.Core
             return available;
         }
         
-        private static IEnumerable<Cell> AvailableToLeft(Player player)
+        private static IEnumerable<Cell> AvailableCellsToLeft(Player player)
         {
             var cell = player.Cell;
             var available = new List<Cell>(2);
@@ -191,28 +191,30 @@ namespace UniformQuoridor.Core
         public IEnumerable<Fence> AvailableFences()
         {
             var available = new List<Fence>();
-            var unencounteredFences = new List<Fence>(Fences);
+            var unencountered = new List<Fence>(Fences);
             
             int lastIndex = Size - 1;
-            for (int c = 0; c <= lastIndex - 1; c++)
+            for (int r = 0; r <= lastIndex - 1; r++)
             {
-                for (int r = 0; r <= lastIndex - 1; r++)
+                for (int c = 0; c <= lastIndex - 1; c++)
                 {
-                    int encounteredFenceIndex = unencounteredFences.FindIndex(
-                        fence => fence.CenterColumn == r && fence.CenterRow == c);
+                    int encounteredFenceIndex = unencountered.FindIndex(
+                        fence => fence.CenterRow == r && fence.CenterColumn == c);
                     
                     if (encounteredFenceIndex != -1)
                     {
-                        unencounteredFences.RemoveAt(encounteredFenceIndex);
+                        unencountered.RemoveAt(encounteredFenceIndex);
                         continue;
                     }
 
-                    if (Cells[r, c].Bottom != null && Cells[r + 1, c].Bottom != null)
+                    var cellToTopLeft = Cells[r, c];
+                    
+                    if (cellToTopLeft.Bottom != null && cellToTopLeft.Right?.Bottom != null)
                     {
                         available.Add(new Fence(r, c, Axis.Horizontal));
                     }
 
-                    if (Cells[r, c].Right != null && Cells[r, c + 1].Right != null)
+                    if (cellToTopLeft.Right != null && cellToTopLeft.Bottom?.Right != null)
                     {
                         available.Add(new Fence(r, c, Axis.Vertical));
                     }
@@ -222,11 +224,11 @@ namespace UniformQuoridor.Core
             return available;
         }
 
-        private static bool PathExists(Cell a, Cell b)
+        public static bool PathExists(Cell a, Cell b)
         {
             // depth-first, visiting the cell which is the closest one to the end cell
 
-            var candidates = new Dictionary<Cell, double>() { {a, Distance(a, b)} };
+            var candidates = new Dictionary<Cell, double> { { a, Distance(a, b) } };
 
             var visited = new List<Cell>();
 
