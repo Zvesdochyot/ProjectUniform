@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using UniformQuoridor.Core.Exceptions;
 
@@ -9,7 +10,9 @@ namespace UniformQuoridor.Core
         public Board Board { get; }
         
         public Player[] Players { get; }
-
+        
+        public List<Action> Actions { get; set; }
+        
         public Player CurrentPlayer { get; set; }
         
         public bool IsEnded { get; set; } = false;
@@ -18,6 +21,7 @@ namespace UniformQuoridor.Core
         {
             Board = new Board(boardSize);
             Players = new Player[playersCount];
+            Actions = new List<Action>();
             
             for (int id = 1; id <= playersCount; id++)
             {

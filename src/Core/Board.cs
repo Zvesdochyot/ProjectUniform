@@ -55,8 +55,7 @@ namespace UniformQuoridor.Core
             // bottom-left
             Cells[lastIndex, firstIndex].Top = Cells[lastIndex - 1, firstIndex];
             Cells[lastIndex, firstIndex].Right = Cells[lastIndex, firstIndex + 1];
-
-
+            
             // edge and inner cells
 
             for (int i = firstIndex + 1; i <= lastIndex - 1; i++)
