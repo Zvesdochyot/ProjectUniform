@@ -12,40 +12,65 @@ namespace UniformQuoridor.View
 		private const string _player1Symbol = "▲▲";
 		private const string _player2Symbol = "▼▼";
 
-		private int _zeroRow, _zeroColumn;
+		private int cellAreaSize;
+		private int firstIndex = 0, lastIndex;
+		private int cellAreaFirstIndex = 2, cellAreaLastIndex;
 
 		private Board _board;
 		private Player _player1, _player2;
 
 		public GameSnapshot(Board board, Player player1, Player player2)
 		{
-			_zeroRow = Console.CursorTop;
-			_zeroColumn = Console.CursorLeft;
-
 			_board = board;
 			_player1 = player1;
 			_player2 = player2;
+
+			cellAreaSize = board.Size * 2 - 1;
+			cellAreaLastIndex = cellAreaFirstIndex + cellAreaSize - 1;
+			lastIndex = cellAreaLastIndex + 2;
 		}
 		
 		public void Print()
 		{
+			PrintNotation();
 			PrintFrame();
 			PrintCells();
 			PrintFences();
 			PrintPlayers();
+		}
 
-			Console.SetCursorPosition(0, _zeroRow + CellIndexToSnapshotIndex(_board.Size));
+		private void PrintNotation()
+		{
+			string symbol;
+
+			// cells
+			for (int i = 0; i < _board.Size; i++)
+			{
+				symbol = $"{(char) (65 + i)} ";  // 65 = A
+				WriteAt(firstIndex, CellIndexToSnapshotIndex(i), symbol);  // top
+				symbol = $"{1 + i} ";
+				WriteAt(CellIndexToSnapshotIndex(i), firstIndex, symbol);  // left
+			}
+
+			// fence centers
+			for (int i = 0; i < _board.Size - 1; i++)
+			{
+				symbol = $" {1 + i}";
+				WriteAt(CellIndexToSnapshotIndex(i) + 1, lastIndex, symbol);  // right
+				symbol = $"{(char) (90 - _board.Size + 2 + i)} ";  // 90 = Z
+				WriteAt(lastIndex, CellIndexToSnapshotIndex(i) + 1, symbol);  // bottom
+			}
 		}
 
 		private void PrintFrame()
 		{
-			int firstIndex = 0, lastIndex = _board.Size * 2;
-			for (int i = 0; i <= lastIndex; i ++)
+			int frameFirstIndex = cellAreaFirstIndex - 1, frameLastIndex = cellAreaLastIndex + 1;
+			for (int i = frameFirstIndex; i <= frameLastIndex; i++)
 			{
-				WriteAt(firstIndex, i, _fenceSymbol);  // top
-				WriteAt(i, lastIndex, _fenceSymbol);  // right
-				WriteAt(lastIndex, i, _fenceSymbol);  // bottom
-				WriteAt(i, firstIndex, _fenceSymbol);  // left
+				WriteAt(frameFirstIndex, i, _fenceSymbol);  // top
+				WriteAt(i, frameLastIndex, _fenceSymbol);  // right
+				WriteAt(frameLastIndex, i, _fenceSymbol);  // bottom
+				WriteAt(i, frameFirstIndex, _fenceSymbol);  // left
 			}
 		}
 
@@ -60,7 +85,7 @@ namespace UniformQuoridor.View
 			}
 		}
 
-		private int CellIndexToSnapshotIndex(int index) => 1 + index * 2;
+		private int CellIndexToSnapshotIndex(int index) => cellAreaFirstIndex + index * 2;
 
 		private void PrintFences()
 		{
@@ -96,7 +121,7 @@ namespace UniformQuoridor.View
 
 		private void WriteAt(int row, int column, string symbol)
 		{
-			Console.SetCursorPosition(_zeroColumn + column * 2, _zeroRow + row);
+			Console.SetCursorPosition(column * 2, row);
 			Console.Write(symbol);
 		}
 	}
