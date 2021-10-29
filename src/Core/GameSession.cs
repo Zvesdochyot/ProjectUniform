@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using UniformQuoridor.Core.Exceptions;
 
 namespace UniformQuoridor.Core
 {
@@ -33,12 +34,32 @@ namespace UniformQuoridor.Core
         
         public void Place(int row, int column, Axis axis)
         {
-            var availableFences = Board.AvailableFences();
+            var available = Board.AvailableFences();
 
-            var foundFence = availableFences.SingleOrDefault(fence =>
+            var found = available.SingleOrDefault(fence =>
                 fence.CenterRow == row && fence.CenterColumn == column && fence.Axis == axis);
             
-            Board.Fences.Add(foundFence);
+            if (found == null)
+            {
+                throw new FenceUnplaceableException(
+                    "A fence you are trying to place has already been placed on this cell.");
+            }
+
+            Board.AddFence(found);
+            var pathExistsResult = new bool[Players.Length];
+            foreach (var player in Players)
+            {
+                pathExistsResult[player.Id - 1] = player.TargetCells.Any(cell => Board.PathExists(player.Cell, cell));
+            }
+
+            if (!pathExistsResult.All(value => value))
+            {
+                Board.RemoveFence(found);
+                throw new FenceUnplaceableException(
+                    "A fence you are trying to place blocks all possible paths for one of the players.");
+            }
+
+            CurrentPlayer = GetNextPlayer();
         }
 
         private Player PickRandomPlayer()
@@ -46,6 +67,11 @@ namespace UniformQuoridor.Core
             var rng = new Random();
             int randomIndex = rng.Next(Players.Length);
             return Players[randomIndex];
+        }
+
+        private Player GetNextPlayer()
+        {
+            return Players[CurrentPlayer.Id % Players.Length];
         }
     }
 }

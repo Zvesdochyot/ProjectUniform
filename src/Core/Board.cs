@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 
+
 namespace UniformQuoridor.Core
 {
     public class Board
@@ -10,13 +11,13 @@ namespace UniformQuoridor.Core
         public Cell[,] Cells { get; }
 
         public List<Fence> Fences { get; }
-
+        
         public Board(int size)
         {
             Size = size;
             Cells = new Cell[size, size];
             Fences = new List<Fence>(20);
-            
+
             InitCells();
         }
 
@@ -91,6 +92,59 @@ namespace UniformQuoridor.Core
                 }
             }
         }
+        
+        public void AddFence(Fence fence)
+        {
+            Fences.Add(fence);
+
+            var cellToTopLeft = Cells[fence.CenterRow, fence.CenterColumn];
+
+            if (fence.Axis == Axis.Horizontal)
+            {
+                var cellToBottomLeft = cellToTopLeft.Bottom;
+                cellToTopLeft.Bottom = null;
+                cellToBottomLeft.Top = null;
+
+                var cellToBottomRight = cellToTopLeft.Right.Bottom;
+                cellToTopLeft.Right.Bottom = null;
+                cellToBottomRight.Top = null;
+            }
+            else
+            {
+                var cellToTopRight = cellToTopLeft.Right;
+                cellToTopLeft.Right = null;
+                cellToTopRight.Left = null;
+
+                var cellToBottomRight = cellToTopLeft.Bottom.Right;
+                cellToTopLeft.Bottom.Right = null;
+                cellToBottomRight.Left = null;
+            }
+        }
+
+        private bool FenceIsAvailable(Fence fence)
+        {
+            if (Fences.Exists(
+                (f) => f.CenterRow == fence.CenterRow && f.CenterColumn == fence.CenterColumn
+            )) return false;
+
+            var cellToTopLeft = Cells[fence.CenterRow, fence.CenterColumn];
+
+            if (fence.Axis == Axis.Horizontal)
+            {
+                // neither of left and right vertical pairs has a fence in between
+                return cellToTopLeft.Bottom != null && cellToTopLeft.Right.Bottom != null;
+            }
+            else
+            {
+                // if neither of top and bottom horizontal pairs ones has a fence in between
+                return cellToTopLeft.Right != null && cellToTopLeft.Bottom.Right != null;
+            }
+        }
+
+        public void RemoveFence(Fence fence) 
+        {
+            Fences.Remove(fence);
+        }
 
         public static IEnumerable<Cell> AvailableCells(Player player)
         {
@@ -103,7 +157,7 @@ namespace UniformQuoridor.Core
 
             return available;
         }
-
+        
         private static IEnumerable<Cell> AvailableCellsToTop(Player player)
         {
             var cell = player.Cell;
@@ -124,7 +178,7 @@ namespace UniformQuoridor.Core
 
             return available;
         }
-
+        
         private static IEnumerable<Cell> AvailableCellsToRight(Player player)
         {
             var cell = player.Cell;
@@ -145,7 +199,7 @@ namespace UniformQuoridor.Core
 
             return available;
         }
-
+        
         private static IEnumerable<Cell> AvailableCellsToBottom(Player player)
         {
             var cell = player.Cell;
@@ -166,7 +220,7 @@ namespace UniformQuoridor.Core
 
             return available;
         }
-        
+ 
         private static IEnumerable<Cell> AvailableCellsToLeft(Player player)
         {
             var cell = player.Cell;
@@ -187,54 +241,39 @@ namespace UniformQuoridor.Core
 
             return available;
         }
-
+        
         public IEnumerable<Fence> AvailableFences()
         {
             var available = new List<Fence>();
-            var unencountered = new List<Fence>(Fences);
-            
-            int lastIndex = Size - 1;
-            for (int r = 0; r <= lastIndex - 1; r++)
+
+            int lastCellIndex = Size - 1;
+
+            for (int r = 0; r <= lastCellIndex - 1; r++)
             {
-                for (int c = 0; c <= lastIndex - 1; c++)
+                for (int c = 0; c <= lastCellIndex - 1; c++)
                 {
-                    int encounteredFenceIndex = unencountered.FindIndex(
-                        fence => fence.CenterRow == r && fence.CenterColumn == c);
-                    
-                    if (encounteredFenceIndex != -1)
-                    {
-                        unencountered.RemoveAt(encounteredFenceIndex);
-                        continue;
-                    }
+                    var candidate = new Fence(r, c, Axis.Horizontal);
+                    if (FenceIsAvailable(candidate)) available.Add(candidate);
 
-                    var cellToTopLeft = Cells[r, c];
-                    
-                    if (cellToTopLeft.Bottom != null && cellToTopLeft.Right?.Bottom != null)
-                    {
-                        available.Add(new Fence(r, c, Axis.Horizontal));
-                    }
-
-                    if (cellToTopLeft.Right != null && cellToTopLeft.Bottom?.Right != null)
-                    {
-                        available.Add(new Fence(r, c, Axis.Vertical));
-                    }
+                    candidate = new Fence(r, c, Axis.Vertical);
+                    if (FenceIsAvailable(candidate)) available.Add(candidate);
                 }
             }
 
             return available;
         }
-
+        
         public static bool PathExists(Cell a, Cell b)
         {
             // depth-first, visiting the cell which is the closest one to the end cell
 
-            var candidates = new Dictionary<Cell, double> { { a, Distance(a, b) } };
+            var candidates = new Dictionary<Cell, double>() { {a, Distance(a, b)} };
 
             var visited = new List<Cell>();
 
             while (candidates.Count != 0)
             {
-                var current = Closest(candidates);
+                Cell current = Closest(candidates);
 
                 if (current == b) return true;
                 visited.Add(current);
@@ -262,8 +301,8 @@ namespace UniformQuoridor.Core
         
         private static double Distance(Cell a, Cell b)
         {
-            int distanceX = a.Column - b.Column;
-            int distanceY = a.Row - b.Row;
+            int distanceX = a.Column - b.Column, distanceY = a.Row - b.Row;
+
             return Math.Sqrt(distanceX*distanceX + distanceY*distanceY);
         }
 

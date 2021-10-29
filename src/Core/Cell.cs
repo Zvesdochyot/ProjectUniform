@@ -15,7 +15,7 @@ namespace UniformQuoridor.Core
         public Cell Left { get; set; }
 
         public bool IsFree { get; set; } = true;
-
+        
         public Cell(int row, int column) 
         {
             Row = row;
