@@ -143,6 +143,75 @@ namespace UniformQuoridor.Core
             Fences.Remove(fence);
         }
 
+        public bool PathExists(Cell a, Cell b)
+		{
+			// depth-first, visiting the cell which is the closest one to the end cell
+
+			var visited = new List<Cell>();
+			var available = new Dictionary<Cell, double>() { {a, Distance(a, b)} };
+			Cell current;
+
+			while (available.Count != 0)
+			{
+				current = Closest(available);
+                //
+                Console.Write($"\n{available.Count} available:");
+				foreach (var (c, d) in available)
+                {
+                    Console.Write($" [{c.Row}, {c.Column}]");
+                }
+                Console.WriteLine($"\nchosen: [{current.Row}, {current.Column}]");
+                //
+
+				if (current == b) return true;
+
+				available.Remove(current);
+				visited.Add(current);
+
+				if (current.Top != null && !visited.Contains(current.Top))
+				{
+					available.TryAdd(current.Top, Distance(current.Top, b));
+				}
+				if (current.Right != null && !visited.Contains(current.Right))
+				{
+					available.TryAdd(current.Right, Distance(current.Right, b));
+				}
+				if (current.Bottom != null && !visited.Contains(current.Bottom))
+				{
+					available.TryAdd(current.Bottom, Distance(current.Bottom, b));
+				}
+				if (current.Left != null && !visited.Contains(current.Left))
+				{
+					available.TryAdd(current.Left, Distance(current.Left, b));
+				}
+			}
+
+			return false;
+		}
+
+        private static double Distance(Cell a, Cell b)
+        {
+            int distanceX = a.Column - b.Column, distanceY = a.Row - b.Row;
+            return Math.Sqrt(distanceX*distanceX + distanceY*distanceY);
+        }
+
+        private static Cell Closest(Dictionary<Cell, double> distances)
+        {
+            Cell closest = default;
+            double smallestDistance = Double.PositiveInfinity;
+
+            foreach (var (cell, distance) in distances)
+            {
+                if (distance < smallestDistance)
+                {
+                    closest = cell;
+                    smallestDistance = distance;
+                }
+            }
+
+            return closest;
+        }
+
         public List<Cell> AvailableCells(Player player)
         {
             var available = new List<Cell>(5);
@@ -259,65 +328,6 @@ namespace UniformQuoridor.Core
             }
 
             return available;
-        }
-
-        private bool PathExists(Cell a, Cell b)
-        {
-            // depth-first, visiting the cell which is the closest one to the end cell
-
-            var candidates = new Dictionary<Cell, double>() { {a, Distance(a, b)} };
-            Cell current;
-            var visited = new List<Cell>();
-
-            while (candidates.Count != 0)
-            {
-                current = Closest(candidates);
-
-                if (current == b) return true;
-                visited.Add(current);
-
-                if (!visited.Contains(current.Top) && current.Top != null)
-                {
-                    candidates.Add(current.Top, Distance(current.Top, b));
-                }
-                if (!visited.Contains(current.Right) && current.Right != null)
-                {
-                    candidates.Add(current.Right, Distance(current.Right, b));
-                }
-                if (!visited.Contains(current.Bottom) && current.Bottom != null)
-                {
-                    candidates.Add(current.Bottom, Distance(current.Bottom, b));
-                }
-                if (!visited.Contains(current.Top) && current.Left != null)
-                {
-                    candidates.Add(current.Left, Distance(current.Left, b));
-                }
-            }
-
-            return false;
-        }
-
-        private static double Distance(Cell a, Cell b)
-        {
-            int distanceX = a.Column - b.Column, distanceY = a.Row - b.Row;
-            return Math.Sqrt(distanceX*distanceX + distanceY*distanceY);
-        }
-
-        private static Cell Closest(Dictionary<Cell, double> distances)
-        {
-            Cell closest = default;
-            double smallestDistance = Double.PositiveInfinity;
-
-            foreach (var (cell, distance) in distances)
-            {
-                if (distance < smallestDistance)
-                {
-                    closest = cell;
-                    smallestDistance = distance;
-                }
-            }
-
-            return closest;
         }
     }
 }
