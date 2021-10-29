@@ -91,6 +91,61 @@ namespace UniformQuoridor.Core
 			}
 		}
 
+		public bool AddFence(Fence fence)
+		{
+			if (!FenceIsAvailable(fence)) return false;
+
+			Fences.Add(fence);
+			
+			// todo: think on the check whether the fence makes target cells inaccessible
+			// consider making the players members of Board
+
+			var cellToTopLeft = Cells[fence.CenterRow, fence.CenterColumn];
+
+			if (fence.Axis == Axis.Horizontal)
+			{
+				var cellToBottomLeft = cellToTopLeft.Bottom;
+				cellToTopLeft.Bottom = null;
+				cellToBottomLeft.Top = null;
+
+				var cellToBottomRight = cellToTopLeft.Right.Bottom;
+				cellToTopLeft.Right.Bottom = null;
+				cellToBottomRight.Top = null;
+			}
+			else
+			{
+				var cellToTopRight = cellToTopLeft.Right;
+				cellToTopLeft.Right = null;
+				cellToTopRight.Left = null;
+
+				var cellToBottomRight = cellToTopLeft.Bottom.Right;
+				cellToTopLeft.Bottom.Right = null;
+				cellToBottomRight.Left = null;
+			}
+
+			return true;
+		}
+
+		private bool FenceIsAvailable(Fence fence)
+		{
+			if (Fences.Exists(
+				(f) => f.CenterRow == fence.CenterRow && f.CenterColumn == fence.CenterColumn
+			)) return false;
+
+			var cellToTopLeft = Cells[fence.CenterRow, fence.CenterColumn];
+
+			if (fence.Axis == Axis.Horizontal)
+			{
+				// neither of left and right vertical pairs has a fence in between
+				return cellToTopLeft.Bottom != null && cellToTopLeft.Right.Bottom != null;
+			}
+			else
+			{
+				// if neither of top and bottom horizontal pairs ones has a fence in between
+				return cellToTopLeft.Right != null && cellToTopLeft.Bottom.Right != null;
+			}
+		}
+
 		public List<Cell> AvailableCells(Player player)
 		{
 			var available = new List<Cell>(5);
@@ -190,33 +245,19 @@ namespace UniformQuoridor.Core
 		public List<Fence> AvailableFences()
 		{
 			var available = new List<Fence>();
-			var unencountered = new List<Fence>(Fences);
 
-			int lastIndex = Size - 1, encounteredFenceIndex;
-			for (int r = 0; r <=  lastIndex - 1; r++)
+			int lastCellIndex = Size - 1;
+			Fence candidate;
+
+			for (int r = 0; r <=  lastCellIndex - 1; r++)
 			{
-				for (int c = 0; c <=  lastIndex - 1; c++)
+				for (int c = 0; c <=  lastCellIndex - 1; c++)
 				{
-					encounteredFenceIndex = unencountered.FindIndex(
-						(fence) => fence.CenterRow == r && fence.CenterColumn == c
-					);
-					if (encounteredFenceIndex != -1)
-					{  // if a fence exists at this position
-						unencountered.RemoveAt(encounteredFenceIndex);
-						continue;  // no fences are available
-					}
+					candidate = new Fence(r, c, Axis.Horizontal);
+					if (FenceIsAvailable(candidate)) available.Add(candidate);
 
-					var cellToTopLeft = Cells[r, c];
-
-					if (cellToTopLeft.Bottom != null && cellToTopLeft.Right.Bottom != null)
-					{  // if neither of left and right vertical pairs has a fence in between
-						available.Add(new Fence(r, c, Axis.Horizontal));
-					}
-
-					if (cellToTopLeft.Right != null && cellToTopLeft.Bottom.Right != null)
-					{  // if neither of top and bottom horizontal pairs ones has a fence in between
-						available.Add(new Fence(r, c, Axis.Vertical));
-					}
+					candidate = new Fence(r, c, Axis.Vertical);
+					if (FenceIsAvailable(candidate)) available.Add(candidate);
 				}
 			}
 
