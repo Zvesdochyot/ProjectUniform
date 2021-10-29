@@ -24,7 +24,7 @@ namespace UniformQuoridor.Core
                 Players[id - 1] = new Player(id, Board, PlayerType.Computer);
             }
 
-            CurrentPlayer = PickRandomPlayer();
+            CurrentPlayer = ChooseRandomPlayer();
         }
 
         public void Move(int row, int column)
@@ -34,18 +34,16 @@ namespace UniformQuoridor.Core
         
         public void Place(int row, int column, Axis axis)
         {
-            var available = Board.AvailableFences();
-
-            var found = available.SingleOrDefault(fence =>
-                fence.CenterRow == row && fence.CenterColumn == column && fence.Axis == axis);
+            var challenger = new Fence(row, column, axis);
             
-            if (found == null)
+            if (!Board.FenceIsAvailable(challenger))
             {
                 throw new FenceUnplaceableException(
                     "A fence you are trying to place has already been placed on this cell.");
             }
-
-            Board.AddFence(found);
+            
+            Board.AddFence(challenger);
+            
             var pathExistsResult = new bool[Players.Length];
             foreach (var player in Players)
             {
@@ -54,7 +52,7 @@ namespace UniformQuoridor.Core
 
             if (!pathExistsResult.All(value => value))
             {
-                Board.RemoveFence(found);
+                Board.RemoveFence(challenger);
                 throw new FenceUnplaceableException(
                     "A fence you are trying to place blocks all possible paths for one of the players.");
             }
@@ -62,7 +60,7 @@ namespace UniformQuoridor.Core
             CurrentPlayer = GetNextPlayer();
         }
 
-        private Player PickRandomPlayer()
+        private Player ChooseRandomPlayer()
         {
             var rng = new Random();
             int randomIndex = rng.Next(Players.Length);
