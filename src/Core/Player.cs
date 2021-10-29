@@ -8,14 +8,14 @@ namespace UniformQuoridor.Core
 
         public Cell[] TargetCells { get; set; }
 
-        public Player(int id, Board board, PlayerType playerType)
+        public Player(int id, Board board)
         {
             Id = id;
             
-            InitPlayer(board);
+            InitTargetCells(board);
         }
 
-        private void InitPlayer(Board board)
+        private void InitTargetCells(Board board)
         {
             const int firstRowIndex = 0;
             int lastRowIndex = board.Size - 1;

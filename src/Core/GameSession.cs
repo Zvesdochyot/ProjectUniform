@@ -17,15 +17,15 @@ namespace UniformQuoridor.Core
         
         public bool IsEnded { get; set; } = false;
         
-        public GameSession(int boardSize, int playersCount)
+        public GameSession(int boardSize, int playerCount)
         {
             Board = new Board(boardSize);
-            Players = new Player[playersCount];
+            Players = new Player[playerCount];
             Actions = new List<Action>();
             
-            for (int id = 1; id <= playersCount; id++)
+            for (int id = 1; id <= playerCount; id++)
             {
-                Players[id - 1] = new Player(id, Board, PlayerType.Computer);
+                Players[id - 1] = new Player(id, Board);
             }
 
             ChooseFirstPlayer();

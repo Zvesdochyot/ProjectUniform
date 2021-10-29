@@ -1,128 +1,158 @@
 using System;
+using System.Collections.Generic;
 
 using UniformQuoridor.Core;
 
 
 namespace UniformQuoridor.View
 {
-	class GameSnapshot
-	{
-		private const string _fenceSymbol = "██";
-		private const string _cellSymbol = "[]";
-		private const string _player1Symbol = "▲▲";
-		private const string _player2Symbol = "▼▼";
+    class GameSnapshot
+    {
+        private const string _fenceSymbol = "██";
+        private const string _cellSymbol = "[]";
+        private const string _player1Symbol = "▲▲";
+        private const string _player2Symbol = "▼▼";
 
-		private int cellAreaSize;
-		private int firstIndex = 0, lastIndex;
-		private int cellAreaFirstIndex = 2, cellAreaLastIndex;
+        private int _cellAreaSize;
+        private int _firstIndex = 0, _lastIndex;
+        private int _cellAreaFirstIndex = 2, _cellAreaLastIndex;
 
-		private Board _board;
-		private Player _player1, _player2;
+        private int _boardSize;
+        private Cell _player1Cell, _player2Cell;
 
-		public GameSnapshot(Board board, Player player1, Player player2)
-		{
-			_board = board;
-			_player1 = player1;
-			_player2 = player2;
+        public GameSnapshot(Board board, Player player1, Player player2)
+        {
+            _boardSize = board.Size;
+            _player1Cell = player1.Cell;
+            _player2Cell = player2.Cell;
 
-			cellAreaSize = board.Size * 2 - 1;
-			cellAreaLastIndex = cellAreaFirstIndex + cellAreaSize - 1;
-			lastIndex = cellAreaLastIndex + 2;
-		}
-		
-		public void Print()
-		{
-			PrintNotation();
-			PrintFrame();
-			PrintCells();
-			PrintFences();
-			PrintPlayers();
-		}
+            _cellAreaSize = board.Size * 2 - 1;
+            _cellAreaLastIndex = _cellAreaFirstIndex + _cellAreaSize - 1;
+            _lastIndex = _cellAreaLastIndex + 2;
+        }
 
-		private void PrintNotation()
-		{
-			string symbol;
+        public void Print(Board board)
+        {
+            PrintNotation();
+            PrintFrame();
+            PrintCells();
+            PrintFences(board.Fences);
+            PrintPlayers();
+        }
 
-			// cells
-			for (int i = 0; i < _board.Size; i++)
-			{
-				symbol = $"{(char) (65 + i)} ";  // 65 = A
-				WriteAt(firstIndex, CellIndexToSnapshotIndex(i), symbol);  // top
-				symbol = $"{1 + i} ";
-				WriteAt(CellIndexToSnapshotIndex(i), firstIndex, symbol);  // left
-			}
+        private void PrintNotation()
+        {
+            string symbol;
 
-			// fence centers
-			for (int i = 0; i < _board.Size - 1; i++)
-			{
-				symbol = $" {1 + i}";
-				WriteAt(CellIndexToSnapshotIndex(i) + 1, lastIndex, symbol);  // right
-				symbol = $"{(char) (90 - _board.Size + 2 + i)} ";  // 90 = Z
-				WriteAt(lastIndex, CellIndexToSnapshotIndex(i) + 1, symbol);  // bottom
-			}
-		}
+            // cells
+            for (int i = 0; i < _boardSize; i++)
+            {
+                symbol = $"{(char) (65 + i)} ";  // 65 = A
+                WriteAt(_firstIndex, CellIndexToSnapshotIndex(i), symbol);  // top
+                symbol = $"{1 + i} ";
+                WriteAt(CellIndexToSnapshotIndex(i), _firstIndex, symbol);  // left
+            }
 
-		private void PrintFrame()
-		{
-			int frameFirstIndex = cellAreaFirstIndex - 1, frameLastIndex = cellAreaLastIndex + 1;
-			for (int i = frameFirstIndex; i <= frameLastIndex; i++)
-			{
-				WriteAt(frameFirstIndex, i, _fenceSymbol);  // top
-				WriteAt(i, frameLastIndex, _fenceSymbol);  // right
-				WriteAt(frameLastIndex, i, _fenceSymbol);  // bottom
-				WriteAt(i, frameFirstIndex, _fenceSymbol);  // left
-			}
-		}
+            // fence centers
+            for (int i = 0; i < _boardSize - 1; i++)
+            {
+                symbol = $" {1 + i}";
+                WriteAt(CellIndexToSnapshotIndex(i) + 1, _lastIndex, symbol);  // right
+                symbol = $"{(char) (90 - _boardSize + 2 + i)} ";  // 90 = Z
+                WriteAt(_lastIndex, CellIndexToSnapshotIndex(i) + 1, symbol);  // bottom
+            }
+        }
 
-		private void PrintCells()
-		{
-			for (int r = 0; r < _board.Size; r++)
-			{
-				for (int c = 0; c < _board.Size; c++)
-				{
-					WriteAt(CellIndexToSnapshotIndex(r), CellIndexToSnapshotIndex(c), _cellSymbol);
-				}
-			}
-		}
+        private void PrintFrame()
+        {
+            int frameFirstIndex = _cellAreaFirstIndex - 1, frameLastIndex = _cellAreaLastIndex + 1;
+            for (int i = frameFirstIndex; i <= frameLastIndex; i++)
+            {
+                WriteAt(frameFirstIndex, i, _fenceSymbol);  // top
+                WriteAt(i, frameLastIndex, _fenceSymbol);  // right
+                WriteAt(frameLastIndex, i, _fenceSymbol);  // bottom
+                WriteAt(i, frameFirstIndex, _fenceSymbol);  // left
+            }
+        }
 
-		private int CellIndexToSnapshotIndex(int index) => cellAreaFirstIndex + index * 2;
+        private void PrintCells()
+        {
+            for (int r = 0; r < _boardSize; r++)
+            {
+                for (int c = 0; c < _boardSize; c++)
+                {
+                    WriteAt(CellIndexToSnapshotIndex(r), CellIndexToSnapshotIndex(c), _cellSymbol);
+                }
+            }
+        }
 
-		private void PrintFences()
-		{
-			foreach (var fence in _board.Fences)
-			{
-				int centerRow = FenceIndexToSnapshotIndex(fence.CenterRow);
-				int centerColumn = FenceIndexToSnapshotIndex(fence.CenterColumn);
+        private int CellIndexToSnapshotIndex(int index) => _cellAreaFirstIndex + index * 2;
 
-				WriteAt(centerRow, centerColumn, _fenceSymbol);
+        private void PrintFences(List<Fence> fences)
+        {
+            foreach (var fence in fences) PrintFence(fence);
+        }
 
-				if (fence.Axis == Axis.Horizontal)
-				{
-					WriteAt(centerRow, centerColumn - 1, _fenceSymbol);
-					WriteAt(centerRow, centerColumn + 1, _fenceSymbol);
-				}
-				else
-				{
-					WriteAt(centerRow - 1, centerColumn, _fenceSymbol);
-					WriteAt(centerRow + 1, centerColumn, _fenceSymbol);
-				}
-			}
-		}
+        private void PrintFence(Fence fence)
+        {
+            int centerRow = FenceIndexToSnapshotIndex(fence.CenterRow);
+            int centerColumn = FenceIndexToSnapshotIndex(fence.CenterColumn);
 
-		private int FenceIndexToSnapshotIndex(int index) => CellIndexToSnapshotIndex(index) + 1;
+            WriteAt(centerRow, centerColumn, _fenceSymbol);
 
-		private void PrintPlayers()
-		{
-			WriteAt(CellIndexToSnapshotIndex(_player1.Cell.Row),
-				CellIndexToSnapshotIndex(_player1.Cell.Column), _player1Symbol);
-			WriteAt(CellIndexToSnapshotIndex(_player2.Cell.Row),
-				CellIndexToSnapshotIndex(_player1.Cell.Column), _player2Symbol);
-		}
+            if (fence.Axis == Axis.Horizontal)
+            {
+                WriteAt(centerRow, centerColumn - 1, _fenceSymbol);
+                WriteAt(centerRow, centerColumn + 1, _fenceSymbol);
+            }
+            else
+            {
+                WriteAt(centerRow - 1, centerColumn, _fenceSymbol);
+                WriteAt(centerRow + 1, centerColumn, _fenceSymbol);
+            }
+        }
 
-		private void WriteAt(int row, int column, string symbol)
-		{
-			Console.SetCursorPosition(column * 2, row);
-			Console.Write(symbol);
-		}
-	}
+        private int FenceIndexToSnapshotIndex(int index) => CellIndexToSnapshotIndex(index) + 1;
+
+        private void PrintPlayers()
+        {
+            WriteAt(CellIndexToSnapshotIndex(_player1Cell.Row),
+                CellIndexToSnapshotIndex(_player1Cell.Column), _player1Symbol);
+            WriteAt(CellIndexToSnapshotIndex(_player2Cell.Row),
+                CellIndexToSnapshotIndex(_player1Cell.Column), _player2Symbol);
+        }
+
+        public void MovePlayer(Player player)
+        {
+            Cell freedCell;
+            string playerSymbol;
+
+            if (player.Id == 1)
+            {
+                freedCell = _player1Cell;
+                playerSymbol = _player1Symbol;
+                _player1Cell = player.Cell;
+            }
+            else
+            {
+                freedCell = _player2Cell;
+                playerSymbol = _player2Symbol;
+                _player2Cell = player.Cell;
+            }
+
+            WriteAt(CellIndexToSnapshotIndex(freedCell.Row), CellIndexToSnapshotIndex(freedCell.Column), _cellSymbol);
+            WriteAt(CellIndexToSnapshotIndex(player.Cell.Row), CellIndexToSnapshotIndex(player.Cell.Column), playerSymbol);
+        }
+
+        public void AddFence(Fence fence)
+        {
+            PrintFence(fence);
+        }
+
+        private static void WriteAt(int row, int column, string symbol)
+        {
+            Console.SetCursorPosition(column * 2, row);
+            Console.Write(symbol);
+        }
+    }
 }
