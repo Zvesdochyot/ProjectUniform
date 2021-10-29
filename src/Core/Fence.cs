@@ -2,11 +2,11 @@ namespace UniformQuoridor.Core
 {
     public class Fence 
     {
-        public int CenterRow { get; init; }
+        public int CenterRow { get; }
 
-        public int CenterColumn { get; init; }
+        public int CenterColumn { get; }
 
-        public Axis Axis { get; init; }
+        public Axis Axis { get; }
 
         public Fence(int centerRow, int centerColumn, Axis axis)
         {
@@ -18,6 +18,7 @@ namespace UniformQuoridor.Core
 
     public enum Axis
     {
-        Horizontal, Vertical
+        Horizontal,
+        Vertical
     }
 }
