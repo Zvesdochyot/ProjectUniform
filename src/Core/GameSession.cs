@@ -24,12 +24,30 @@ namespace UniformQuoridor.Core
                 Players[id - 1] = new Player(id, Board, PlayerType.Computer);
             }
 
-            CurrentPlayer = ChooseRandomPlayer();
+            ChooseFirstPlayer();
         }
 
         public void Move(int row, int column)
         {
-            var availableCells = Board.AvailableCells(CurrentPlayer);
+            var challenger = Board.Cells[row, column];
+            var available = Board.AvailableCells(CurrentPlayer);
+            
+            if (!available.Contains(challenger))
+            {
+                throw new UnreachableCellException(
+                    "A cell you are trying to move to is unreachable.");
+            }
+
+            CurrentPlayer.Cell = challenger;
+
+            if (CurrentPlayer.TargetCells.Contains(CurrentPlayer.Cell))
+            {
+                IsEnded = true;
+            }
+            else
+            {
+                PassTurn();
+            }
         }
         
         public void Place(int row, int column, Axis axis)
@@ -57,19 +75,20 @@ namespace UniformQuoridor.Core
                     "A fence you are trying to place blocks all possible paths for one of the players.");
             }
 
-            CurrentPlayer = GetNextPlayer();
+            PassTurn();
         }
 
-        private Player ChooseRandomPlayer()
+        // temporarily method 
+        private void ChooseFirstPlayer()
         {
             var rng = new Random();
             int randomIndex = rng.Next(Players.Length);
-            return Players[randomIndex];
+            CurrentPlayer = Players[randomIndex];
         }
 
-        private Player GetNextPlayer()
+        private void PassTurn()
         {
-            return Players[CurrentPlayer.Id % Players.Length];
+            CurrentPlayer = Players[CurrentPlayer.Id % Players.Length];
         }
     }
 }
