@@ -91,14 +91,9 @@ namespace UniformQuoridor.Core
 			}
 		}
 
-		public bool AddFence(Fence fence)
+		public void AddFence(Fence fence)
 		{
-			if (!FenceIsAvailable(fence)) return false;
-
 			Fences.Add(fence);
-			
-			// todo: think on the check whether the fence makes target cells inaccessible
-			// consider making the players members of Board
 
 			var cellToTopLeft = Cells[fence.CenterRow, fence.CenterColumn];
 
@@ -122,8 +117,6 @@ namespace UniformQuoridor.Core
 				cellToTopLeft.Bottom.Right = null;
 				cellToBottomRight.Left = null;
 			}
-
-			return true;
 		}
 
 		private bool FenceIsAvailable(Fence fence)
@@ -144,6 +137,10 @@ namespace UniformQuoridor.Core
 				// if neither of top and bottom horizontal pairs ones has a fence in between
 				return cellToTopLeft.Right != null && cellToTopLeft.Bottom.Right != null;
 			}
+		}
+
+		public void RemoveFence(Fence fence) {
+			Fences.Remove(fence);
 		}
 
 		public List<Cell> AvailableCells(Player player)
@@ -220,7 +217,7 @@ namespace UniformQuoridor.Core
 
 			return available;
 		}
-		
+
 		private List<Cell> AvailableCellsToLeft(Player player)
 		{
 			var cell = player.Cell;
