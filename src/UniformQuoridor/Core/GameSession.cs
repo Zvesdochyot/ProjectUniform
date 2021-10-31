@@ -74,7 +74,8 @@ namespace UniformQuoridor.Core
                 throw new UnplaceableFenceException(
                     "A fence you are trying to place blocks all possible paths for one of the players.");
             }
-
+            
+            CurrentPlayer.RemainingFences -= 1;
             PassTurn();
         }
         

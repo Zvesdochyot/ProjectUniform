@@ -1,9 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  	<PropertyGroup>
-    	<TargetFramework>net5.0</TargetFramework>
-    	<AssemblyName>UniformQuoridor</AssemblyName>
-    	<RootNamespace>UniformQuoridor</RootNamespace>
-  	</PropertyGroup>
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+        <AssemblyName>UniformQuoridor</AssemblyName>
+        <RootNamespace>UniformQuoridor</RootNamespace>
+    </PropertyGroup>
 
 </Project>

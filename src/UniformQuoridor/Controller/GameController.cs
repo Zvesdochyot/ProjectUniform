@@ -38,7 +38,6 @@ namespace UniformQuoridor.Controller
                     var moveAction = new MoveAction(_game.CurrentPlayer, argument);
                     if (moveAction.IsParsed)
                     {
-                        // Console.WriteLine($"Trying to move player to {moveAction.CoreArgument.Row} {moveAction.CoreArgument.Column}");
                         _game.Move(moveAction.CoreArgument.Row, moveAction.CoreArgument.Column);
                     }
                     break;
@@ -46,7 +45,6 @@ namespace UniformQuoridor.Controller
                     var placeAction = new PlaceAction(_game.CurrentPlayer, argument);
                     if (placeAction.IsParsed)
                     {
-                        // Console.WriteLine($"Trying to place fence at {placeAction.CoreArgument.CenterRow} {placeAction.CoreArgument.CenterColumn} {placeAction.CoreArgument.Axis}");
                         _game.Place(placeAction.CoreArgument.CenterRow, placeAction.CoreArgument.CenterColumn, placeAction.CoreArgument.Axis);
                     }
                     break;

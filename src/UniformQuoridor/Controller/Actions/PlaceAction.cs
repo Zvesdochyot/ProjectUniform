@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text.RegularExpressions;
 using UniformQuoridor.Core;
+using UniformQuoridor.Core.Exceptions;
 
 namespace UniformQuoridor.Controller.Actions
 {
@@ -8,7 +9,14 @@ namespace UniformQuoridor.Controller.Actions
     {
         public override string Name => "place";
 
-        public PlaceAction(Player player, string argument) : base(player, argument) { }
+        public PlaceAction(Player player, string argument) : base(player, argument)
+        {
+            if (player.RemainingFences == 0)
+            {
+                throw new FenceLimitationException(
+                    "You have used the maximum number of available fences.");
+            }
+        }
         
         protected override bool ArgumentIsValid(string argument)
         {

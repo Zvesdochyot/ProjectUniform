@@ -8,10 +8,12 @@ namespace UniformQuoridor.Core
 
         public Cell[] TargetCells { get; set; }
 
+        public int RemainingFences { get; set; } = 10;
+
         public Player(int id, Board board)
         {
             Id = id;
-            
+
             InitPlayer(board);
         }
 
