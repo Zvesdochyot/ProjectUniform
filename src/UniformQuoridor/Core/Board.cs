@@ -9,7 +9,7 @@ namespace UniformQuoridor.Core
 
         public Cell[,] Cells { get; }
 
-        public List<Fence> Fences { get; } = new List<Fence>(20);
+        public List<Fence> Fences { get; } = new(20);
         
         public Board(int size)
         {
@@ -90,12 +90,12 @@ namespace UniformQuoridor.Core
             }
         }
       
-        public bool PathExists(Cell a, Cell b)
+        public static bool PathExists(Cell a, Cell b)
 		    {
             // depth-first, visiting the cell which is the closest one to the end cell
 
             var visited = new List<Cell>();
-            var available = new Dictionary<Cell, double>() { { a, Distance(a, b) } };
+            var available = new Dictionary<Cell, double> { { a, Distance(a, b) } };
 
             while (available.Count != 0)
             {
@@ -312,9 +312,9 @@ namespace UniformQuoridor.Core
 
             return fence.Axis == Axis.Horizontal ? 
               // neither of left and right vertical pairs has a fence in between
-              (cellToTopLeft.Bottom != null && cellToTopLeft.Right.Bottom != null) :          
+              (cellToTopLeft.Bottom != null && cellToTopLeft.Right?.Bottom != null) :          
               // if neither of top and bottom horizontal pairs ones has a fence in between
-              (cellToTopLeft.Right != null && cellToTopLeft.Bottom.Right != null);
+              (cellToTopLeft.Right != null && cellToTopLeft.Bottom?.Right != null);
         }
         
         public List<Fence> AvailableFences()

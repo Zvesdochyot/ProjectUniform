@@ -19,20 +19,10 @@ namespace UniformQuoridor.View
             var available = Board.AvailableCells(_player);
             var cellsView = String.Join(", ", available);
             
-            ClearOldInputLines(_viewParameters.InputFirstIndex);
+            GameView.ClearLines(_viewParameters.InputFirstIndex, 2);
             Console.WriteLine($"Available cells to move to: {cellsView}");
-            Console.Write($"Player {_player.Id}, please, enter your next action: ");
+            Console.Write($"{_player}, please, enter your next action: ");
             return Console.ReadLine();
-        }
-
-        private static void ClearOldInputLines(int rowNumber)
-        {
-            for (int i = 0; i < 3; i++)
-            {
-                Console.SetCursorPosition(ViewParameters.FirstIndex, rowNumber + i);
-                Console.Write(new string(' ', Console.WindowWidth));
-            }
-            Console.SetCursorPosition(ViewParameters.FirstIndex, rowNumber);
         }
     }
 }

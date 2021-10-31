@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using UniformQuoridor.Core;
 using UniformQuoridor.Controller;
 using UniformQuoridor.View;
@@ -9,31 +10,77 @@ namespace UniformQuoridor.Client
     {
         public static void Main(string[] args)
         {
-            var game = new GameSession(9, 2);
-            var controller = new GameController(game);
-            var view = new GameView(game);
-            
-            view.AskForPrint();
-            
-            while (!game.IsEnded)
+            const int boardSize = 9;
+            const int playersCount = 2;
+            bool isClosed = false;
+
+            while (!isClosed)
             {
-                try
+                var game = new GameSession(boardSize, playersCount);
+                var controller = new GameController(game);
+                var view = new GameView(game);
+                
+                Console.Clear();
+                
+                GameView.PrintPrelude();
+
+                bool isTypesCorrect;
+                PlayerType[] playersType;
+                do 
                 {
-                    string rawInput = view.AskForInput();
-                    controller.AcceptRequest(rawInput);
-                    view.AskForPrint();
+                    string[] rawTypes = view.AskForPlayersType();
+                    isTypesCorrect = GameController.TryParsePlayersType(rawTypes, out playersType);
+                    GameView.ClearLines(ViewParameters.FirstIndex, 2);
+                } while (!isTypesCorrect);
+                controller.SetPlayersType(playersType);
+                
+                GameView.PrintCountdown();
+                
+                while (!game.IsEnded)
+                {
+                    try
+                    {
+                        // Dummy
+                        if (game.CurrentPlayer.PlayerType == PlayerType.Computer)
+                        {
+                            controller.DoRandomAction();
+                        }
+                        
+                        view.AskForPrint();
+                        string rawInput = view.AskForInput();
+                        controller.AcceptRequest(rawInput);
+                        view.ClearErrorMessage();
+
+                    }
+                    catch (Exception exception)
+                    {
+                        view.PrintError(exception.Message);
+                    }
+                }
             
-                }
-                catch (Exception exception)
+                Console.Clear();
+                
+                view.PrintWinner();
+
+                bool isDecisionCorrect = false;
+                do
                 {
-                    Console.WriteLine(exception.Message);
-                }
+                    string decision = GameView.AskForRelapse();
+                    switch (decision.ToLower())
+                    {
+                        case "restart":
+                            isDecisionCorrect = true;
+                            break;
+                        case "exit":
+                            isDecisionCorrect = true;
+                            isClosed = true;
+                            break;
+                    }
+                    GameView.ClearLines(ViewParameters.FirstIndex, 1);
+                } while (!isDecisionCorrect);
             }
             
-            Console.Clear();
-            Console.WriteLine($"Player {game.CurrentPlayer.Id} won. Congrats!");
-            
-            Console.ReadKey();
+            GameView.SayGoodbye();
         }
     }
 }

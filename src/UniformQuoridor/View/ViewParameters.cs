@@ -12,6 +12,8 @@ namespace UniformQuoridor.View
         public int CellAreaLastIndex { get; }
         
         public int InputFirstIndex { get; }
+        
+        public int ErrorFirstIndex { get; }
 
         public ViewParameters(Board board)
         {
@@ -19,6 +21,7 @@ namespace UniformQuoridor.View
             CellAreaLastIndex = CellAreaFirstIndex + cellAreaSize - 1;
             LastIndex = CellAreaLastIndex + 2;
             InputFirstIndex = LastIndex + 1;
+            ErrorFirstIndex = InputFirstIndex + 2;
         }
     }
 }
