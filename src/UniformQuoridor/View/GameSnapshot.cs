@@ -1,11 +1,9 @@
 using System;
-
 using UniformQuoridor.Core;
-
 
 namespace UniformQuoridor.View
 {
-	class GameSnapshot
+	public class GameSnapshot
 	{
 		private const string _fenceSymbol = "██";
 		private const string _cellSymbol = "[]";

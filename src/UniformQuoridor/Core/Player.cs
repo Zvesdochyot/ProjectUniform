@@ -8,7 +8,7 @@ namespace UniformQuoridor.Core
 
         public Cell[] TargetCells { get; set; }
 
-        public Player(int id, Board board, PlayerType playerType)
+        public Player(int id, Board board)
         {
             Id = id;
             
@@ -40,11 +40,5 @@ namespace UniformQuoridor.Core
                 }
             }
         }
-    }
-
-    public enum PlayerType
-    {
-        Computer,
-        Human
     }
 }

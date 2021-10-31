@@ -5,26 +5,31 @@ namespace UniformQuoridor.Controller.Actions
 {
     public abstract class ActionBase<T>
     {
-        protected abstract string Name { get; }
+        public abstract string Name { get; }
 
-        private string Argument { get; }
+        public string Argument { get; private set; }
         
-        private T CoreArgument { get; }
+        public T CoreArgument { get; protected set; }
+
+        public bool IsParsed { get; private set; }
         
         private Player Player { get; }
 
-        public ActionBase(Player player, string argument)
+        protected ActionBase(Player player, string argument)
         {
             Player = player;
             ParseArgument(argument);
         }
 
-        public void ParseArgument(string argument)
+        private void ParseArgument(string argument)
         {
             if (!ArgumentIsValid(argument))
             {
-                throw new ArgumentException($"Invalid argument for action {Name}");
+                throw new ArgumentException($"Invalid argument for action {Name}.");
             }
+
+            IsParsed = true;
+            Argument = argument;
             InitCoreArgument(argument);
         }
 

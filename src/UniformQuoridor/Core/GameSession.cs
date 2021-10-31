@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using UniformQuoridor.Core.Exceptions;
 
@@ -11,21 +10,18 @@ namespace UniformQuoridor.Core
         
         public Player[] Players { get; }
         
-        public List<Action> Actions { get; set; }
+        public Player CurrentPlayer { get; private set; }
         
-        public Player CurrentPlayer { get; set; }
-        
-        public bool IsEnded { get; set; } = false;
+        public bool IsEnded { get; set; }
         
         public GameSession(int boardSize, int playersCount)
         {
             Board = new Board(boardSize);
             Players = new Player[playersCount];
-            Actions = new List<Action>();
-            
+
             for (int id = 1; id <= playersCount; id++)
             {
-                Players[id - 1] = new Player(id, Board, PlayerType.Computer);
+                Players[id - 1] = new Player(id, Board);
             }
 
             ChooseFirstPlayer();
@@ -60,7 +56,7 @@ namespace UniformQuoridor.Core
             
             if (!Board.FenceIsAvailable(challenger))
             {
-                throw new FenceUnplaceableException(
+                throw new UnplaceableFenceException(
                     "A fence you are trying to place has already been placed on this cell.");
             }
             
@@ -75,14 +71,13 @@ namespace UniformQuoridor.Core
             if (!pathExistsResult.All(value => value))
             {
                 Board.RemoveFence(challenger);
-                throw new FenceUnplaceableException(
+                throw new UnplaceableFenceException(
                     "A fence you are trying to place blocks all possible paths for one of the players.");
             }
 
             PassTurn();
         }
-
-        // temporarily method 
+        
         private void ChooseFirstPlayer()
         {
             var rng = new Random();
