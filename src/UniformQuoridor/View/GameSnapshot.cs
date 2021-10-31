@@ -35,6 +35,8 @@ namespace UniformQuoridor.View
 			PrintCells();
 			PrintFences();
 			PrintPlayers();
+			
+			Console.SetCursorPosition(0, lastIndex + 1);
 		}
 
 		private void PrintNotation()

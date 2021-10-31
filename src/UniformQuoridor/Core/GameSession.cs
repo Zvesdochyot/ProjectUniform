@@ -31,15 +31,17 @@ namespace UniformQuoridor.Core
         {
             var challenger = Board.Cells[row, column];
             var available = Board.AvailableCells(CurrentPlayer);
-            
+
             if (!available.Contains(challenger))
             {
                 throw new UnreachableCellException(
                     "A cell you are trying to move to is unreachable.");
             }
 
+            CurrentPlayer.Cell.IsFree = true;
             CurrentPlayer.Cell = challenger;
-
+            CurrentPlayer.Cell.IsFree = false;
+            
             if (CurrentPlayer.TargetCells.Contains(CurrentPlayer.Cell))
             {
                 IsEnded = true;

@@ -10,23 +10,28 @@ namespace UniformQuoridor.Client
         public static void Main(string[] args)
         {
             var game = new GameSession(9, 2);
-            // while (!gameSession.IsEnded)
-            // {
-            //
-            // }
-            
-            // var view = new GameView(game.Board, game.Players[0], game.Players[1]);
-            // view.Print();
-            // string rawInput = view.AskInput();
-            
-            // var controller = new GameController(game);
-            // controller.AcceptRequest(rawInput);
-            
             var controller = new GameController(game);
-            controller.AcceptRequest("move E2");
+            var view = new GameView(game);
+            
+            view.AskForPrint();
+            
+            while (!game.IsEnded)
+            {
+                try
+                {
+                    string rawInput = view.AskForInput();
+                    controller.AcceptRequest(rawInput);
+                    view.AskForPrint();
 
-            var view = new GameSnapshot(game.Board, game.Players[0], game.Players[1]);
-            view.Print();
+                }
+                catch (Exception exception)
+                {
+                    Console.WriteLine(exception.Message);
+                }
+            }
+            
+            Console.Clear();
+            Console.WriteLine($"Player {game.CurrentPlayer.Id} won. Congrats!");
             
             Console.ReadKey();
         }
