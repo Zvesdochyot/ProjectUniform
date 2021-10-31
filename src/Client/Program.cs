@@ -22,7 +22,7 @@ namespace UniformQuoridor.Client
                     string rawInput = view.AskForInput();
                     controller.AcceptRequest(rawInput);
                     view.AskForPrint();
-
+            
                 }
                 catch (Exception exception)
                 {
