@@ -21,5 +21,10 @@ namespace UniformQuoridor.Core
             Row = row;
             Column = column;
         }
+
+        public override string ToString()
+        {
+            return $"[Column: {(char) (Column + 65)}; Row: {Row + 1}]";
+        }
     }
 }
