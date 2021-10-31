@@ -6,9 +6,11 @@ namespace UniformQuoridor.Core
         
         public Cell Cell { get; set; }
 
-        public Cell[] TargetCells { get; set; }
+        public Cell[] TargetCells { get; private set; }
 
         public int RemainingFences { get; set; } = 10;
+        
+        public PlayerType PlayerType { get; set; }
 
         public Player(int id, Board board)
         {
@@ -42,5 +44,16 @@ namespace UniformQuoridor.Core
                 }
             }
         }
+
+        public override string ToString()
+        {
+            return $"Player {Id}";
+        }
+    }
+
+    public enum PlayerType
+    {
+        Human,
+        Computer
     }
 }
